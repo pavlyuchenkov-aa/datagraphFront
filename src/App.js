@@ -4,16 +4,15 @@ import axios from 'axios';
 import ZoomControlButtons from './components/ZoomControlButtons/';
 import moment from 'moment';
 import myConfig from './myConfig';
-import Header from './components/Header'
+import Header from './components/Header/Header'
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
 
-const GRAPH_DATA_URL = 'http://localhost:7328/get:full';
+const GRAPH_DATA_URL = 'http://localhost:7328/get:short';
 
 export default function App() {
   const panelRef = useRef(null);
-  const graphRef = useRef(null);
   const [config, setConfig] = useState(myConfig);
   const [graphData, setGraphData] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
@@ -40,23 +39,15 @@ export default function App() {
     getLinkData(query, sourceNodeType);
   }
 
-  const onClickGraph = () => {
-    if (graphRef.current) {
-      Object.keys(graphRef.current.state.nodes).forEach((key) => {
-        graphRef.current.state.nodes[key].opacity -= 0.5;
-      });
-    }
-  }
-
   const onZoomIn = () => {
     const newConfig = { ...config };
-    newConfig.initialZoom += 0.5;
+    newConfig.initialZoom += 0.25;
     setConfig(newConfig);
   }
 
   const onZoomOut = () => {
     const newConfig = { ...config };
-    newConfig.initialZoom -= 0.5;
+    newConfig.initialZoom -= 0.25;
     setConfig(newConfig);
   }
 
@@ -134,13 +125,11 @@ export default function App() {
             onZoomOut={onZoomOut}
           />
           <Graph
-            ref={graphRef}
             id={"company-data"}
             data={graphData}
             config={config}
             onClickNode={onClickNode}
             onClickLink={onClickLink}
-            onClickGraph={onClickGraph}
           />
         </Box>
       </Box>
