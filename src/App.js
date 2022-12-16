@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
 
-const GRAPH_DATA_URL = 'http://localhost:7328/get:full';
+const GRAPH_DATA_URL = 'http://localhost:7328/get:short';
 
 export default function App() {
   const panelRef = useRef(null);

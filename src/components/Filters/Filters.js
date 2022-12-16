@@ -11,6 +11,7 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import Dialog from '@mui/material/Dialog';
 import TabPanel from '@mui/lab/TabPanel';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -22,6 +23,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { styled } from '@mui/material/styles';
+import ListItemText from '@mui/material/ListItemText';
 
 const Separator = styled('div')(
     ({ theme }) => `
@@ -31,42 +33,47 @@ const Separator = styled('div')(
 
 const staffSizeMarks = [
     {
-        value: 0,
+        value: 2,
         label: '2',
     },
     {
-        value: 100,
+        value: 2000000,
         label: '2M',
     },
 ];
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+
 const yearMarks = [
     {
-        value: 0,
+        value: 1700,
         label: '1700',
     },
     {
-        value: 100,
+        value: 2022,
         label: '2022',
     },
 ];
-
-const newData = {
-    nodes: [
-      { id: "1", svg: "https://icons.iconarchive.com/icons/sicons/basic-round-social/256/yandex-icon.png", status: "Компания", name: "Yandex", ceo: "Аркадий Волож", year: 2000, description: "Яндекс — одна из крупнейших IT-компаний в России. Мы развиваем самую популярную в стране поисковую систему и создаем сервисы, которые помогают людям в повседневных делах."}, 
-      { id: "2", svg: "https://icons.iconarchive.com/icons/papirus-team/papirus-apps/256/yandex-browser-beta-icon.png", status: "Продукт", name: "Yandex Browser", year: 2012, description: "Яндекс Браузер — это бесплатный веб-браузер, разработанный российской технологической корпорацией Яндекс, который использует движок веб-браузера Blink и основан на проекте с открытым исходным кодом Chromium."}, 
-      { id: "3", svg: "https://icons.iconarchive.com/icons/papirus-team/papirus-places/256/folder-blue-yandex-disk-icon.png", status: "Продукт", name: "Yandex Disk", year: 2013, description: "Яндекс.Диск — облачный сервис, принадлежащий компании Яндекс, позволяющий пользователям хранить свои данные на серверах в «облаке» и передавать их другим пользователям в Интернете."}]
-    ,
-    links: [
-      { source: "1", target: "2" },
-      { source: "1", target: "3" }
-    ]
-  };
 
 const Filters = (props) => {
     const [open, setOpen] = React.useState(false);
     const [tabVal, settabVal] = React.useState('Фильтрация компаний');
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
+    const [departmentsData, setDepartmentsData] = React.useState([]);
+    const [departmentNames, setdepartmentNames] = React.useState([]);
+    const [companyName, setCompanyName] = React.useState('');
+    const [ceoName, setCeoName] = React.useState('');
+    const [dateRange, setDateRange] = React.useState([1980, 2000]);
+    const [staffRange, setStaffRange] = React.useState([100000, 400000]);
     const [compInfo, setCompanyInfo] = React.useState({
         names: [],
         ceos: [],
@@ -75,6 +82,90 @@ const Filters = (props) => {
     const [prodInfo, setProductInfo] = React.useState({
         names: []
     });
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleTabChange = (event, newValue) => {
+        settabVal(newValue);
+        setDialogTitle(newValue);
+    };
+
+    const handleChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setdepartmentNames(
+            typeof value === 'string' ? value.split(',') : value,
+        );
+    };
+
+    const handleCompanyNameChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setCompanyName(value);
+    }
+
+    const handleCeoNameChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setCeoName(value);
+    }
+
+    const minTimeDistance = 1;
+    const minStaffDistance = 0;
+
+    const handleTimeRangeChange = (event, newValue, activeThumb) => {
+        if (!Array.isArray(newValue)) {
+            return;
+        }
+
+        if (activeThumb === 0) {
+            setDateRange([Math.min(newValue[0], dateRange[1] - minTimeDistance), dateRange[1]]);
+        } else {
+            setDateRange([dateRange[0], Math.max(newValue[1], dateRange[0] + minTimeDistance)]);
+        }
+    }
+
+    const handleStaffRangeChange = (event, newValue, activeThumb) => {
+        if (!Array.isArray(newValue)) {
+            return;
+        }
+
+        if (activeThumb === 0) {
+            setStaffRange([Math.min(newValue[0], staffRange[1] - minStaffDistance), staffRange[1]]);
+        } else {
+            setStaffRange([staffRange[0], Math.max(newValue[1], staffRange[0] + minStaffDistance)]);
+        }
+    }
+
+    const sendFilters = () => {
+        var departmentIds = [];
+        departmentsData.map(item => {
+            if (departmentNames.includes(item.name)) {
+                departmentIds.push(item.id);
+            }
+        })
+
+        const companyFilters = {
+            companyName: companyName,
+            departments: departmentIds,
+            ceo: ceoName,
+            minDate: JSON.stringify(dateRange[0]) + "-01-01T00:00:00Z",
+            maxDate: JSON.stringify(dateRange[1]) + "-01-01T00:00:00Z",
+            startStaffSize: staffRange[0],
+            endStaffSize: staffRange[1]
+        }
+
+        console.log(companyFilters);
+    }
 
     React.useEffect(() => {
         var companyInfo = {
@@ -92,14 +183,14 @@ const Filters = (props) => {
             if (props.data.nodes[i].nodeType == "Компания") {
                 query = "http://localhost:7328/company?id=" + props.data.nodes[i].id;
                 axios.get(query).then((response) => {
-                        if (!companyInfo.names.includes(response.data.name)) {
-                            companyInfo.names.push(response.data.name);
-                        }
-                        
-                        if (!companyInfo.ceos.includes(response.data.ceo)) {
-                            companyInfo.ceos.push(response.data.ceo);
-                        }
-                    })
+                    if (!companyInfo.names.includes(response.data.name)) {
+                        companyInfo.names.push(response.data.name);
+                    }
+
+                    if (!companyInfo.ceos.includes(response.data.ceo)) {
+                        companyInfo.ceos.push(response.data.ceo);
+                    }
+                })
                     .catch(e => {
                         console.log(e);
                     });
@@ -107,10 +198,10 @@ const Filters = (props) => {
             else if (props.data.nodes[i].nodeType == "Продукт") {
                 query = "http://localhost:7328/product?id=" + props.data.nodes[i].id;
                 axios.get(query).then((response) => {
-                        if (!productInfo.names.includes(response.data.name)) {
-                            productInfo.names.push(response.data.name);
-                        }
-                    })
+                    if (!productInfo.names.includes(response.data.name)) {
+                        productInfo.names.push(response.data.name);
+                    }
+                })
                     .catch(e => {
                         console.log(e);
                     });
@@ -120,28 +211,16 @@ const Filters = (props) => {
         axios.get("http://localhost:7328/departments").then((response) => {
             response.data.map(item => {
                 companyInfo.departments.push(item.name);
+                setDepartmentsData(response.data)
             })
         })
-        .catch(e => {
-            console.log(e);
-        });
+            .catch(e => {
+                console.log(e);
+            });
 
         setCompanyInfo(companyInfo);
         setProductInfo(productInfo);
     }, [props.data])
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleTabChange = (event, newValue) => {
-        settabVal(newValue);
-        setDialogTitle(newValue);
-    };
 
     return (
         <Toolbar>
@@ -173,6 +252,8 @@ const Filters = (props) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование компании"
+                                        onChange={handleCompanyNameChange}
+                                        value={companyName}
                                         defaultValue=''
                                     >
                                         {compInfo && compInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
@@ -184,6 +265,8 @@ const Filters = (props) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Имя владельца"
+                                        onChange={handleCeoNameChange}
+                                        value={ceoName}
                                         defaultValue=''
                                     >
                                         {compInfo && compInfo.ceos.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
@@ -194,39 +277,61 @@ const Filters = (props) => {
                                         Штат сотрудников
                                     </Typography>
                                     <Slider
+                                        size="small"
                                         aria-labelledby="track-false-slider"
-                                        defaultValue={[20, 37]}
+                                        defaultValue={[100000, 400000]}
+                                        min={2}
+                                        max={2000000}
                                         marks={staffSizeMarks}
+                                        valueLabelDisplay="auto"
+                                        onChange={handleStaffRangeChange}
+                                        value={staffRange}
+                                        disableSwap
                                     />
                                     <Separator />
                                     <Typography id="track-false-range-slider" gutterBottom>
                                         Время существования
                                     </Typography>
                                     <Slider
+                                        size="small"
                                         aria-labelledby="track-false-range-slider"
-                                        defaultValue={[20, 37]}
+                                        defaultValue={[1980, 2000]}
+                                        min={1700}
+                                        max={2022}
                                         marks={yearMarks}
+                                        valueLabelDisplay="auto"
+                                        onChange={handleTimeRangeChange}
+                                        value={dateRange}
+                                        disableSwap
                                     />
                                 </Box>
-                                <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
-                                    <InputLabel id="demo-simple-select-autowidth-label">Отрасли</InputLabel>
+                                <FormControl sx={{ m: 1, ml: -3, width: 450 }}>
+                                    <InputLabel id="demo-multiple-checkbox-label">Отрасли</InputLabel>
                                     <Select
-                                        labelId="demo-simple-select-autowidth-label"
-                                        id="demo-simple-select-autowidth"
-                                        label="Отрасли"
-                                        defaultValue=''
+                                        labelId="demo-multiple-checkbox-label"
+                                        id="demo-multiple-checkbox"
+                                        multiple
+                                        value={departmentNames}
+                                        onChange={handleChange}
+                                        input={<OutlinedInput label="Отрасли" />}
+                                        renderValue={(selected) => selected.join(', ')}
+                                        MenuProps={MenuProps}
                                     >
-                                        {compInfo && compInfo.departments.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
+                                        {compInfo &&
+                                            compInfo.departments.map(item => (
+                                                <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>
+                                                    <Checkbox checked={departmentNames.indexOf(item) > -1} />
+                                                    <ListItemText primary={item} />
+                                                </MenuItem>
+                                            ))}
                                     </Select>
                                 </FormControl>
                                 <Separator />
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
-                                    <Button variant="contained">Применить</Button>
-                                    <Button onClick={(e) => {
-                                        props.updateGraphData({newData});
-                                    }}
-                                    
-                                    variant="text">Сбросить</Button>
+                                    <Button variant="contained" onClick={sendFilters}>Применить</Button>
+                                    <Button variant="text">
+                                        Сбросить
+                                    </Button>
                                 </Box>
                             </TabPanel>
                             <TabPanel value="Фильтрация продуктов">
