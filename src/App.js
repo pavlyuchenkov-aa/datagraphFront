@@ -19,7 +19,6 @@ export default function App() {
   const [isFetching, setIsFetching] = useState(false);
 
   const onClickNode = (nodeId) => {
-    console.log(nodeId);
     const nodeIndex = graphData.nodes.findIndex(element => element.id == nodeId);
     fetchNodeData(graphData, nodeIndex);
   };

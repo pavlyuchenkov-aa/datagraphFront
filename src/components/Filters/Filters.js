@@ -55,7 +55,11 @@ const Filters = ({ data }) => {
     const [open, setOpen] = React.useState(false);
     const [tabVal, settabVal] = React.useState('Фильтрация компаний');
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
-    const [compInfo, setCompanyInfo] = React.useState();
+    const [compInfo, setCompanyInfo] = React.useState({
+        names: [],
+        ceos: [],
+        departments: []
+    });
 
     React.useEffect(() => {
         var info = {
@@ -63,6 +67,7 @@ const Filters = ({ data }) => {
             ceos: [],
             departments: []
         };
+
         let query = '';
         for (let i = 0; i < data.nodes.length; ++i) {
             if (data.nodes[i].nodeType == "Компания") {
@@ -128,6 +133,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование компании"
+                                        value={compInfo.names[0]}
                                     >
                                         {compInfo && compInfo.names.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
@@ -138,6 +144,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Имя владельца"
+                                        value={compInfo.ceos[0]}
                                     >
                                         {compInfo && compInfo.ceos.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
@@ -167,6 +174,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Отрасли"
+                                        value={compInfo.departments[0]}
                                     >
                                         {compInfo && compInfo.departments.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
