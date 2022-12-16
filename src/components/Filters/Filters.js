@@ -36,7 +36,7 @@ const staffSizeMarks = [
     },
     {
         value: 100,
-        label: '100K',
+        label: '2M',
     },
 ];
 
@@ -60,34 +60,62 @@ const Filters = ({ data }) => {
         ceos: [],
         departments: []
     });
+    const [prodInfo, setProductInfo] = React.useState({
+        names: []
+    });
 
     React.useEffect(() => {
-        var info = {
+        var companyInfo = {
             names: [],
             ceos: [],
             departments: []
         };
+
+        var productInfo = {
+            names: []
+        }
 
         let query = '';
         for (let i = 0; i < data.nodes.length; ++i) {
             if (data.nodes[i].nodeType == "Компания") {
                 query = "http://localhost:7328/company?id=" + data.nodes[i].id;
                 axios.get(query).then((response) => {
-                        info.names.push(response.data.name);
-                        info.ceos.push(response.data.ceo);
+                        if (!companyInfo.names.includes(response.data.name)) {
+                            companyInfo.names.push(response.data.name);
+                        }
+                        
+                        if (!companyInfo.ceos.includes(response.data.ceo)) {
+                            companyInfo.ceos.push(response.data.ceo);
+                        }
                     })
                     .catch(e => {
                         console.log(e);
                     });
-
+            }
+            else if (data.nodes[i].nodeType == "Продукт") {
+                query = "http://localhost:7328/product?id=" + data.nodes[i].id;
+                axios.get(query).then((response) => {
+                        if (!productInfo.names.includes(response.data.name)) {
+                            productInfo.names.push(response.data.name);
+                        }
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
             }
         }
+
         axios.get("http://localhost:7328/departments").then((response) => {
             response.data.map(item => {
-                info.departments.push(item.name);
+                companyInfo.departments.push(item.name);
             })
         })
-        setCompanyInfo(info);
+        .catch(e => {
+            console.log(e);
+        });
+
+        setCompanyInfo(companyInfo);
+        setProductInfo(productInfo);
     }, [data])
 
     const handleClickOpen = () => {
@@ -133,9 +161,9 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование компании"
-                                        value={compInfo.names[0]}
+                                        defaultValue={compInfo.names[0]}
                                     >
-                                        {compInfo && compInfo.names.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
+                                        {compInfo && compInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
@@ -144,9 +172,9 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Имя владельца"
-                                        value={compInfo.ceos[0]}
+                                        defaultValue={compInfo.ceos[0]}
                                     >
-                                        {compInfo && compInfo.ceos.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
+                                        {compInfo && compInfo.ceos.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
@@ -174,9 +202,9 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Отрасли"
-                                        value={compInfo.departments[0]}
+                                        defaultValue={compInfo.departments[0]}
                                     >
-                                        {compInfo && compInfo.departments.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
+                                        {compInfo && compInfo.departments.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Separator />
@@ -192,9 +220,9 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование продукта"
+                                        defaultValue={prodInfo.names[0]}
                                     >
-                                        <MenuItem value={10}>Продукт А</MenuItem>
-                                        <MenuItem value={21}>Продукт Б</MenuItem>
+                                        {prodInfo && prodInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
