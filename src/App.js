@@ -113,11 +113,16 @@ export default function App() {
       });
   }
 
+  function updateGraphData(newGraphData) {
+    //console.log("Update graphData inside of App.js")
+    setGraphData(newGraphData.newData)
+  }
+
   return (
     <div className="App">
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <Header data={graphData}/>
+        <Header data={graphData} updateGraphData={updateGraphData}/>
         <SidePanel ref={panelRef} isFetching={isFetching} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f0f0' }}>
           <ZoomControlButtons

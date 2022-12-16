@@ -51,7 +51,19 @@ const yearMarks = [
     },
 ];
 
-const Filters = ({ data }) => {
+const newData = {
+    nodes: [
+      { id: "1", svg: "https://icons.iconarchive.com/icons/sicons/basic-round-social/256/yandex-icon.png", status: "Компания", name: "Yandex", ceo: "Аркадий Волож", year: 2000, description: "Яндекс — одна из крупнейших IT-компаний в России. Мы развиваем самую популярную в стране поисковую систему и создаем сервисы, которые помогают людям в повседневных делах."}, 
+      { id: "2", svg: "https://icons.iconarchive.com/icons/papirus-team/papirus-apps/256/yandex-browser-beta-icon.png", status: "Продукт", name: "Yandex Browser", year: 2012, description: "Яндекс Браузер — это бесплатный веб-браузер, разработанный российской технологической корпорацией Яндекс, который использует движок веб-браузера Blink и основан на проекте с открытым исходным кодом Chromium."}, 
+      { id: "3", svg: "https://icons.iconarchive.com/icons/papirus-team/papirus-places/256/folder-blue-yandex-disk-icon.png", status: "Продукт", name: "Yandex Disk", year: 2013, description: "Яндекс.Диск — облачный сервис, принадлежащий компании Яндекс, позволяющий пользователям хранить свои данные на серверах в «облаке» и передавать их другим пользователям в Интернете."}]
+    ,
+    links: [
+      { source: "1", target: "2" },
+      { source: "1", target: "3" }
+    ]
+  };
+
+const Filters = (props) => {
     const [open, setOpen] = React.useState(false);
     const [tabVal, settabVal] = React.useState('Фильтрация компаний');
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
@@ -76,9 +88,9 @@ const Filters = ({ data }) => {
         }
 
         let query = '';
-        for (let i = 0; i < data.nodes.length; ++i) {
-            if (data.nodes[i].nodeType == "Компания") {
-                query = "http://localhost:7328/company?id=" + data.nodes[i].id;
+        for (let i = 0; i < props.data.nodes.length; ++i) {
+            if (props.data.nodes[i].nodeType == "Компания") {
+                query = "http://localhost:7328/company?id=" + props.data.nodes[i].id;
                 axios.get(query).then((response) => {
                         if (!companyInfo.names.includes(response.data.name)) {
                             companyInfo.names.push(response.data.name);
@@ -92,8 +104,8 @@ const Filters = ({ data }) => {
                         console.log(e);
                     });
             }
-            else if (data.nodes[i].nodeType == "Продукт") {
-                query = "http://localhost:7328/product?id=" + data.nodes[i].id;
+            else if (props.data.nodes[i].nodeType == "Продукт") {
+                query = "http://localhost:7328/product?id=" + props.data.nodes[i].id;
                 axios.get(query).then((response) => {
                         if (!productInfo.names.includes(response.data.name)) {
                             productInfo.names.push(response.data.name);
@@ -116,7 +128,7 @@ const Filters = ({ data }) => {
 
         setCompanyInfo(companyInfo);
         setProductInfo(productInfo);
-    }, [data])
+    }, [props.data])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -161,7 +173,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование компании"
-                                        defaultValue={compInfo.names[0]}
+                                        defaultValue=''
                                     >
                                         {compInfo && compInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
@@ -172,7 +184,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Имя владельца"
-                                        defaultValue={compInfo.ceos[0]}
+                                        defaultValue=''
                                     >
                                         {compInfo && compInfo.ceos.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
@@ -202,7 +214,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Отрасли"
-                                        defaultValue={compInfo.departments[0]}
+                                        defaultValue=''
                                     >
                                         {compInfo && compInfo.departments.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
@@ -210,7 +222,11 @@ const Filters = ({ data }) => {
                                 <Separator />
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
                                     <Button variant="contained">Применить</Button>
-                                    <Button variant="text">Сбросить</Button>
+                                    <Button onClick={(e) => {
+                                        props.updateGraphData({newData});
+                                    }}
+                                    
+                                    variant="text">Сбросить</Button>
                                 </Box>
                             </TabPanel>
                             <TabPanel value="Фильтрация продуктов">
@@ -220,7 +236,7 @@ const Filters = ({ data }) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование продукта"
-                                        defaultValue={prodInfo.names[0]}
+                                        defaultValue=''
                                     >
                                         {prodInfo && prodInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
