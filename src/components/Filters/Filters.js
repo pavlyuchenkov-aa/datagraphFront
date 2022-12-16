@@ -70,6 +70,7 @@ const Filters = (props) => {
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
     const [departmentsData, setDepartmentsData] = React.useState([]);
     const [departmentNames, setdepartmentNames] = React.useState([]);
+
     const [companyName, setCompanyName] = React.useState('');
     const [ceoName, setCeoName] = React.useState('');
     const [dateRange, setDateRange] = React.useState([1980, 2000]);
@@ -82,6 +83,21 @@ const Filters = (props) => {
     const [prodInfo, setProductInfo] = React.useState({
         names: []
     });
+
+    const [productName, setProductName] = React.useState('');
+    const [productLifetime, setProductLifetime] = React.useState([1980, 2000]);
+    const [isProductVerified, setIsProductVerified] = React.useState(false);
+
+    const handleProductNameChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setProductName(value);
+    };
+
+    const handleProductVerChange = (event) => {
+        setIsProductVerified(event.target.checked);
+    }
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -134,6 +150,18 @@ const Filters = (props) => {
         }
     }
 
+    const handleProductLifetimeChange = (event, newValue, activeThumb) => {
+        if (!Array.isArray(newValue)) {
+            return;
+        }
+
+        if (activeThumb === 0) {
+            setProductLifetime([Math.min(newValue[0], productLifetime[1] - minTimeDistance), productLifetime[1]]);
+        } else {
+            setProductLifetime([productLifetime[0], Math.max(newValue[1], productLifetime[0] + minTimeDistance)]);
+        }
+    }
+
     const handleStaffRangeChange = (event, newValue, activeThumb) => {
         if (!Array.isArray(newValue)) {
             return;
@@ -146,7 +174,7 @@ const Filters = (props) => {
         }
     }
 
-    const sendFilters = () => {
+    const applyCompanyFilters = () => {
         var departmentIds = [];
         departmentsData.map(item => {
             if (departmentNames.includes(item.name)) {
@@ -165,6 +193,18 @@ const Filters = (props) => {
         }
 
         console.log(companyFilters);
+    }
+
+    const applyProductFilters = () => {
+
+        const productFilters = {
+            productName: productName,
+            minDate: JSON.stringify(productLifetime[0]) + "-01-01T00:00:00Z",
+            maxDate: JSON.stringify(productLifetime[1]) + "-01-01T00:00:00Z",
+            isVerified: isProductVerified
+        };
+
+        console.log(productFilters);
     }
 
     React.useEffect(() => {
@@ -328,7 +368,7 @@ const Filters = (props) => {
                                 </FormControl>
                                 <Separator />
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
-                                    <Button variant="contained" onClick={sendFilters}>Применить</Button>
+                                    <Button variant="contained" onClick={applyCompanyFilters}>Применить</Button>
                                     <Button variant="text">
                                         Сбросить
                                     </Button>
@@ -341,6 +381,8 @@ const Filters = (props) => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование продукта"
+                                        onChange={handleProductNameChange}
+                                        value={productName}
                                         defaultValue=''
                                     >
                                         {prodInfo && prodInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
@@ -351,15 +393,22 @@ const Filters = (props) => {
                                         Время существования
                                     </Typography>
                                     <Slider
+                                        size="small"
                                         aria-labelledby="track-false-range-slider"
-                                        defaultValue={[20, 37]}
+                                        defaultValue={[1980, 2000]}
+                                        min={1700}
+                                        max={2022}
                                         marks={yearMarks}
+                                        valueLabelDisplay="auto"
+                                        onChange={handleProductLifetimeChange}
+                                        value={productLifetime}
+                                        disableSwap
                                     />
                                     <FormGroup>
-                                        <FormControlLabel control={<Checkbox />} label="Релиз подтвержден" />
+                                        <FormControlLabel control={<Checkbox checked={isProductVerified} onChange={handleProductVerChange} />} label="Релиз подтвержден" />
                                     </FormGroup>
                                     <Separator />
-                                    <Button variant="contained">Применить</Button>
+                                    <Button onClick={applyProductFilters} variant="contained">Применить</Button>
                                     <Button variant="text">Сбросить</Button>
                                 </Box>
                             </TabPanel>
