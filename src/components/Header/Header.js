@@ -6,7 +6,8 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Filters from '../Filters/Filters';
 
-const Header = () => {
+const Header = ({data}) => {
+  
   return (
     <AppBar component="nav" position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar>
@@ -25,7 +26,7 @@ const Header = () => {
         >
           DataGraph
         </Typography>
-        <Filters />
+        <Filters data={data}/>
       </Toolbar>
     </AppBar>
   )

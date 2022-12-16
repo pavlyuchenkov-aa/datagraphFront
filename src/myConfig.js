@@ -44,7 +44,7 @@ module.exports = {
 		viewGenerator: null
 	},
 	link: {
-		color: "lightgray",
+		color: "black",
 		fontColor: "black",
 		fontSize: 8,
 		fontWeight: "normal",

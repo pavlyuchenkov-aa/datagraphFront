@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
+import axios from 'axios';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -50,10 +51,39 @@ const yearMarks = [
     },
 ];
 
-const Filters = () => {
+const Filters = ({ data }) => {
     const [open, setOpen] = React.useState(false);
     const [tabVal, settabVal] = React.useState('Фильтрация компаний');
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
+    const [compInfo, setCompanyInfo] = React.useState();
+
+    React.useEffect(() => {
+        var info = {
+            names: [],
+            ceos: [],
+            departments: []
+        };
+        let query = '';
+        for (let i = 0; i < data.nodes.length; ++i) {
+            if (data.nodes[i].nodeType == "Компания") {
+                query = "http://localhost:7328/company?id=" + data.nodes[i].id;
+                axios.get(query).then((response) => {
+                        info.names.push(response.data.name);
+                        info.ceos.push(response.data.ceo);
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
+
+            }
+        }
+        axios.get("http://localhost:7328/departments").then((response) => {
+            response.data.map(item => {
+                info.departments.push(item.name);
+            })
+        })
+        setCompanyInfo(info);
+    }, [data])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -99,8 +129,7 @@ const Filters = () => {
                                         id="demo-simple-select-autowidth"
                                         label="Наименование компании"
                                     >
-                                        <MenuItem value={10}>Компания А</MenuItem>
-                                        <MenuItem value={21}>Компания Б</MenuItem>
+                                        {compInfo && compInfo.names.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
@@ -110,8 +139,7 @@ const Filters = () => {
                                         id="demo-simple-select-autowidth"
                                         label="Имя владельца"
                                     >
-                                        <MenuItem value={10}>Владелец А</MenuItem>
-                                        <MenuItem value={21}>Владелец Б</MenuItem>
+                                        {compInfo && compInfo.ceos.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
@@ -140,8 +168,7 @@ const Filters = () => {
                                         id="demo-simple-select-autowidth"
                                         label="Отрасли"
                                     >
-                                        <MenuItem value={10}>Отрасль 1</MenuItem>
-                                        <MenuItem value={21}>Отрасль 2</MenuItem>
+                                        {compInfo && compInfo.departments.map(item => <MenuItem key = {Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Separator />

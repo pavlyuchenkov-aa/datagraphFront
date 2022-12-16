@@ -5,11 +5,12 @@ import ZoomControlButtons from './components/ZoomControlButtons/';
 import moment from 'moment';
 import myConfig from './myConfig';
 import Header from './components/Header/Header'
+import Filters from './components/Filters/Filters';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
 
-const GRAPH_DATA_URL = 'http://localhost:7328/get:short';
+const GRAPH_DATA_URL = 'http://localhost:7328/get:full';
 
 export default function App() {
   const panelRef = useRef(null);
@@ -117,7 +118,7 @@ export default function App() {
     <div className="App">
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <Header />
+        <Header data={graphData}/>
         <SidePanel ref={panelRef} isFetching={isFetching} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f0f0' }}>
           <ZoomControlButtons
