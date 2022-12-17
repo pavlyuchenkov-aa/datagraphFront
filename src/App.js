@@ -5,7 +5,6 @@ import ZoomControlButtons from './components/ZoomControlButtons/';
 import moment from 'moment';
 import myConfig from './myConfig';
 import Header from './components/Header/Header'
-import Filters from './components/Filters/Filters';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
@@ -13,6 +12,7 @@ import SidePanel from './components/SidePanel/SidePanel';
 const GRAPH_DATA_URL = 'http://localhost:7328/get:short';
 
 export default function App() {
+  const reactRef = useRef(null);
   const panelRef = useRef(null);
   const [config, setConfig] = useState(myConfig);
   const [graphData, setGraphData] = useState([]);
@@ -49,6 +49,10 @@ export default function App() {
     const newConfig = { ...config };
     newConfig.initialZoom -= 0.25;
     setConfig(newConfig);
+  }
+
+  const onZoomChange = (prevZoom, newZoom) => {
+    console.log(newZoom);
   }
 
   useEffect(() => {
@@ -114,15 +118,13 @@ export default function App() {
   }
 
   function updateGraphData(newGraphData) {
-    //console.log("Update graphData inside of App.js")
-    setGraphData(newGraphData.newData)
   }
 
   return (
     <div className="App">
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <Header data={graphData} updateGraphData={updateGraphData}/>
+        <Header data={graphData} updateGraphData={updateGraphData} />
         <SidePanel ref={panelRef} isFetching={isFetching} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f0f0' }}>
           <ZoomControlButtons
@@ -130,11 +132,13 @@ export default function App() {
             onZoomOut={onZoomOut}
           />
           <Graph
+            ref={reactRef}
             id={"company-data"}
             data={graphData}
             config={config}
             onClickNode={onClickNode}
             onClickLink={onClickLink}
+            onZoomChange={onZoomChange}
           />
         </Box>
       </Box>

@@ -176,10 +176,11 @@ const Filters = (props) => {
 
     const applyCompanyFilters = () => {
         var departmentIds = [];
-        departmentsData.map(item => {
+        departmentsData.map((item) => {
             if (departmentNames.includes(item.name)) {
                 departmentIds.push(item.id);
             }
+            return item;
         })
 
         const companyFilters = {
@@ -193,6 +194,14 @@ const Filters = (props) => {
         }
 
         console.log(companyFilters);
+
+        axios.post('http://localhost:7328/filterCompany', companyFilters)
+            .then(function (response) {
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
     const applyProductFilters = () => {
@@ -205,6 +214,14 @@ const Filters = (props) => {
         };
 
         console.log(productFilters);
+
+        axios.post('http://localhost:7328/filterProduct', productFilters)
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
 
     React.useEffect(() => {
@@ -218,48 +235,30 @@ const Filters = (props) => {
             names: []
         }
 
-        let query = '';
-        for (let i = 0; i < props.data.nodes.length; ++i) {
-            if (props.data.nodes[i].nodeType == "Компания") {
-                query = "http://localhost:7328/company?id=" + props.data.nodes[i].id;
-                axios.get(query).then((response) => {
-                    if (!companyInfo.names.includes(response.data.name)) {
-                        companyInfo.names.push(response.data.name);
-                    }
+        axios.get("http://localhost:7328/filterPresets")
+            .then((response) => {
+                response.data.companyFilters.companyNames.map(item => (
+                    companyInfo.names.push(item)
+                ))
+                response.data.companyFilters.ceoNames.map(item => (
+                    companyInfo.ceos.push(item)
+                ))
+                response.data.companyFilters.departments.map(item => (
+                    companyInfo.departments.push(item.name)
+                ))
+                response.data.productFilters.productNames.map(item => (
+                    productInfo.names.push(item)
+                ))
 
-                    if (!companyInfo.ceos.includes(response.data.ceo)) {
-                        companyInfo.ceos.push(response.data.ceo);
-                    }
-                })
-                    .catch(e => {
-                        console.log(e);
-                    });
-            }
-            else if (props.data.nodes[i].nodeType == "Продукт") {
-                query = "http://localhost:7328/product?id=" + props.data.nodes[i].id;
-                axios.get(query).then((response) => {
-                    if (!productInfo.names.includes(response.data.name)) {
-                        productInfo.names.push(response.data.name);
-                    }
-                })
-                    .catch(e => {
-                        console.log(e);
-                    });
-            }
-        }
-
-        axios.get("http://localhost:7328/departments").then((response) => {
-            response.data.map(item => {
-                companyInfo.departments.push(item.name);
-                setDepartmentsData(response.data)
+                setDepartmentsData(response.data.companyFilters.departments);
             })
-        })
             .catch(e => {
                 console.log(e);
             });
 
         setCompanyInfo(companyInfo);
         setProductInfo(productInfo);
+
     }, [props.data])
 
     return (
