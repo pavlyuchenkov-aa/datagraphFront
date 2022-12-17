@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
+import axios from 'axios';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -10,6 +11,7 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import Dialog from '@mui/material/Dialog';
 import TabPanel from '@mui/lab/TabPanel';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -21,6 +23,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { styled } from '@mui/material/styles';
+import ListItemText from '@mui/material/ListItemText';
 
 const Separator = styled('div')(
     ({ theme }) => `
@@ -30,30 +33,71 @@ const Separator = styled('div')(
 
 const staffSizeMarks = [
     {
-        value: 0,
+        value: 2,
         label: '2',
     },
     {
-        value: 100,
-        label: '100K',
+        value: 2000000,
+        label: '2M',
     },
 ];
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+
 const yearMarks = [
     {
-        value: 0,
+        value: 1700,
         label: '1700',
     },
     {
-        value: 100,
+        value: 2022,
         label: '2022',
     },
 ];
 
-const Filters = () => {
+const Filters = (props) => {
     const [open, setOpen] = React.useState(false);
     const [tabVal, settabVal] = React.useState('Фильтрация компаний');
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
+    const [departmentsData, setDepartmentsData] = React.useState([]);
+    const [departmentNames, setdepartmentNames] = React.useState([]);
+
+    const [companyName, setCompanyName] = React.useState('');
+    const [ceoName, setCeoName] = React.useState('');
+    const [dateRange, setDateRange] = React.useState([1980, 2000]);
+    const [staffRange, setStaffRange] = React.useState([100000, 400000]);
+    const [compInfo, setCompanyInfo] = React.useState({
+        names: [],
+        ceos: [],
+        departments: []
+    });
+    const [prodInfo, setProductInfo] = React.useState({
+        names: []
+    });
+
+    const [productName, setProductName] = React.useState('');
+    const [productLifetime, setProductLifetime] = React.useState([1980, 2000]);
+    const [isProductVerified, setIsProductVerified] = React.useState(false);
+
+    const handleProductNameChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setProductName(value);
+    };
+
+    const handleProductVerChange = (event) => {
+        setIsProductVerified(event.target.checked);
+    }
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -67,6 +111,155 @@ const Filters = () => {
         settabVal(newValue);
         setDialogTitle(newValue);
     };
+
+    const handleChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setdepartmentNames(
+            typeof value === 'string' ? value.split(',') : value,
+        );
+    };
+
+    const handleCompanyNameChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setCompanyName(value);
+    }
+
+    const handleCeoNameChange = (event) => {
+        const {
+            target: { value },
+        } = event;
+        setCeoName(value);
+    }
+
+    const minTimeDistance = 1;
+    const minStaffDistance = 0;
+
+    const handleTimeRangeChange = (event, newValue, activeThumb) => {
+        if (!Array.isArray(newValue)) {
+            return;
+        }
+
+        if (activeThumb === 0) {
+            setDateRange([Math.min(newValue[0], dateRange[1] - minTimeDistance), dateRange[1]]);
+        } else {
+            setDateRange([dateRange[0], Math.max(newValue[1], dateRange[0] + minTimeDistance)]);
+        }
+    }
+
+    const handleProductLifetimeChange = (event, newValue, activeThumb) => {
+        if (!Array.isArray(newValue)) {
+            return;
+        }
+
+        if (activeThumb === 0) {
+            setProductLifetime([Math.min(newValue[0], productLifetime[1] - minTimeDistance), productLifetime[1]]);
+        } else {
+            setProductLifetime([productLifetime[0], Math.max(newValue[1], productLifetime[0] + minTimeDistance)]);
+        }
+    }
+
+    const handleStaffRangeChange = (event, newValue, activeThumb) => {
+        if (!Array.isArray(newValue)) {
+            return;
+        }
+
+        if (activeThumb === 0) {
+            setStaffRange([Math.min(newValue[0], staffRange[1] - minStaffDistance), staffRange[1]]);
+        } else {
+            setStaffRange([staffRange[0], Math.max(newValue[1], staffRange[0] + minStaffDistance)]);
+        }
+    }
+
+    const applyCompanyFilters = () => {
+        var departmentIds = [];
+        departmentsData.map((item) => {
+            if (departmentNames.includes(item.name)) {
+                departmentIds.push(item.id);
+            }
+            return item;
+        })
+
+        const companyFilters = {
+            companyName: companyName,
+            departments: departmentIds,
+            ceo: ceoName,
+            minDate: JSON.stringify(dateRange[0]) + "-01-01T00:00:00Z",
+            maxDate: JSON.stringify(dateRange[1]) + "-01-01T00:00:00Z",
+            startStaffSize: staffRange[0],
+            endStaffSize: staffRange[1]
+        }
+
+        console.log(companyFilters);
+
+        axios.post('http://localhost:7328/filterCompany', companyFilters)
+            .then(function (response) {
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    const applyProductFilters = () => {
+
+        const productFilters = {
+            productName: productName,
+            minDate: JSON.stringify(productLifetime[0]) + "-01-01T00:00:00Z",
+            maxDate: JSON.stringify(productLifetime[1]) + "-01-01T00:00:00Z",
+            isVerified: isProductVerified
+        };
+
+        console.log(productFilters);
+
+        axios.post('http://localhost:7328/filterProduct', productFilters)
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    React.useEffect(() => {
+        var companyInfo = {
+            names: [],
+            ceos: [],
+            departments: []
+        };
+
+        var productInfo = {
+            names: []
+        }
+
+        axios.get("http://localhost:7328/filterPresets")
+            .then((response) => {
+                response.data.companyFilters.companyNames.map(item => (
+                    companyInfo.names.push(item)
+                ))
+                response.data.companyFilters.ceoNames.map(item => (
+                    companyInfo.ceos.push(item)
+                ))
+                response.data.companyFilters.departments.map(item => (
+                    companyInfo.departments.push(item.name)
+                ))
+                response.data.productFilters.productNames.map(item => (
+                    productInfo.names.push(item)
+                ))
+
+                setDepartmentsData(response.data.companyFilters.departments);
+            })
+            .catch(e => {
+                console.log(e);
+            });
+
+        setCompanyInfo(companyInfo);
+        setProductInfo(productInfo);
+
+    }, [props.data])
 
     return (
         <Toolbar>
@@ -98,9 +291,11 @@ const Filters = () => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование компании"
+                                        onChange={handleCompanyNameChange}
+                                        value={companyName}
+                                        defaultValue=''
                                     >
-                                        <MenuItem value={10}>Компания А</MenuItem>
-                                        <MenuItem value={21}>Компания Б</MenuItem>
+                                        {compInfo && compInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
@@ -109,9 +304,11 @@ const Filters = () => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Имя владельца"
+                                        onChange={handleCeoNameChange}
+                                        value={ceoName}
+                                        defaultValue=''
                                     >
-                                        <MenuItem value={10}>Владелец А</MenuItem>
-                                        <MenuItem value={21}>Владелец Б</MenuItem>
+                                        {compInfo && compInfo.ceos.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
@@ -119,35 +316,61 @@ const Filters = () => {
                                         Штат сотрудников
                                     </Typography>
                                     <Slider
+                                        size="small"
                                         aria-labelledby="track-false-slider"
-                                        defaultValue={[20, 37]}
+                                        defaultValue={[100000, 400000]}
+                                        min={2}
+                                        max={2000000}
                                         marks={staffSizeMarks}
+                                        valueLabelDisplay="auto"
+                                        onChange={handleStaffRangeChange}
+                                        value={staffRange}
+                                        disableSwap
                                     />
                                     <Separator />
                                     <Typography id="track-false-range-slider" gutterBottom>
                                         Время существования
                                     </Typography>
                                     <Slider
+                                        size="small"
                                         aria-labelledby="track-false-range-slider"
-                                        defaultValue={[20, 37]}
+                                        defaultValue={[1980, 2000]}
+                                        min={1700}
+                                        max={2022}
                                         marks={yearMarks}
+                                        valueLabelDisplay="auto"
+                                        onChange={handleTimeRangeChange}
+                                        value={dateRange}
+                                        disableSwap
                                     />
                                 </Box>
-                                <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
-                                    <InputLabel id="demo-simple-select-autowidth-label">Отрасли</InputLabel>
+                                <FormControl sx={{ m: 1, ml: -3, width: 450 }}>
+                                    <InputLabel id="demo-multiple-checkbox-label">Отрасли</InputLabel>
                                     <Select
-                                        labelId="demo-simple-select-autowidth-label"
-                                        id="demo-simple-select-autowidth"
-                                        label="Отрасли"
+                                        labelId="demo-multiple-checkbox-label"
+                                        id="demo-multiple-checkbox"
+                                        multiple
+                                        value={departmentNames}
+                                        onChange={handleChange}
+                                        input={<OutlinedInput label="Отрасли" />}
+                                        renderValue={(selected) => selected.join(', ')}
+                                        MenuProps={MenuProps}
                                     >
-                                        <MenuItem value={10}>Отрасль 1</MenuItem>
-                                        <MenuItem value={21}>Отрасль 2</MenuItem>
+                                        {compInfo &&
+                                            compInfo.departments.map(item => (
+                                                <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>
+                                                    <Checkbox checked={departmentNames.indexOf(item) > -1} />
+                                                    <ListItemText primary={item} />
+                                                </MenuItem>
+                                            ))}
                                     </Select>
                                 </FormControl>
                                 <Separator />
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
-                                    <Button variant="contained">Применить</Button>
-                                    <Button variant="text">Сбросить</Button>
+                                    <Button variant="contained" onClick={applyCompanyFilters}>Применить</Button>
+                                    <Button variant="text">
+                                        Сбросить
+                                    </Button>
                                 </Box>
                             </TabPanel>
                             <TabPanel value="Фильтрация продуктов">
@@ -157,9 +380,11 @@ const Filters = () => {
                                         labelId="demo-simple-select-autowidth-label"
                                         id="demo-simple-select-autowidth"
                                         label="Наименование продукта"
+                                        onChange={handleProductNameChange}
+                                        value={productName}
+                                        defaultValue=''
                                     >
-                                        <MenuItem value={10}>Продукт А</MenuItem>
-                                        <MenuItem value={21}>Продукт Б</MenuItem>
+                                        {prodInfo && prodInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
@@ -167,15 +392,22 @@ const Filters = () => {
                                         Время существования
                                     </Typography>
                                     <Slider
+                                        size="small"
                                         aria-labelledby="track-false-range-slider"
-                                        defaultValue={[20, 37]}
+                                        defaultValue={[1980, 2000]}
+                                        min={1700}
+                                        max={2022}
                                         marks={yearMarks}
+                                        valueLabelDisplay="auto"
+                                        onChange={handleProductLifetimeChange}
+                                        value={productLifetime}
+                                        disableSwap
                                     />
                                     <FormGroup>
-                                        <FormControlLabel control={<Checkbox />} label="Релиз подтвержден" />
+                                        <FormControlLabel control={<Checkbox checked={isProductVerified} onChange={handleProductVerChange} />} label="Релиз подтвержден" />
                                     </FormGroup>
                                     <Separator />
-                                    <Button variant="contained">Применить</Button>
+                                    <Button onClick={applyProductFilters} variant="contained">Применить</Button>
                                     <Button variant="text">Сбросить</Button>
                                 </Box>
                             </TabPanel>

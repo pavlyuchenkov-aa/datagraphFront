@@ -12,7 +12,7 @@ module.exports = {
 	nodeHighlightBehavior: true,
 	panAndZoom: false,
 	staticGraph: false,
-	initialZoom: 0,
+	initialZoom: 0.5,
 	staticGraphWithDragAndDrop: false,
 	width: window.innerWidth - 450,
 	height: window.innerHeight,
@@ -44,7 +44,7 @@ module.exports = {
 		viewGenerator: null
 	},
 	link: {
-		color: "lightgray",
+		color: "black",
 		fontColor: "black",
 		fontSize: 8,
 		fontWeight: "normal",

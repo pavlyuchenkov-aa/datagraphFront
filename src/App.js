@@ -12,13 +12,13 @@ import SidePanel from './components/SidePanel/SidePanel';
 const GRAPH_DATA_URL = 'http://localhost:7328/get:short';
 
 export default function App() {
+  const reactRef = useRef(null);
   const panelRef = useRef(null);
   const [config, setConfig] = useState(myConfig);
   const [graphData, setGraphData] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
 
   const onClickNode = (nodeId) => {
-    console.log(nodeId);
     const nodeIndex = graphData.nodes.findIndex(element => element.id == nodeId);
     fetchNodeData(graphData, nodeIndex);
   };
@@ -49,6 +49,10 @@ export default function App() {
     const newConfig = { ...config };
     newConfig.initialZoom -= 0.25;
     setConfig(newConfig);
+  }
+
+  const onZoomChange = (prevZoom, newZoom) => {
+    console.log(newZoom);
   }
 
   useEffect(() => {
@@ -113,11 +117,14 @@ export default function App() {
       });
   }
 
+  function updateGraphData(newGraphData) {
+  }
+
   return (
     <div className="App">
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <Header />
+        <Header data={graphData} updateGraphData={updateGraphData} />
         <SidePanel ref={panelRef} isFetching={isFetching} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f0f0' }}>
           <ZoomControlButtons
@@ -125,11 +132,13 @@ export default function App() {
             onZoomOut={onZoomOut}
           />
           <Graph
+            ref={reactRef}
             id={"company-data"}
             data={graphData}
             config={config}
             onClickNode={onClickNode}
             onClickLink={onClickLink}
+            onZoomChange={onZoomChange}
           />
         </Box>
       </Box>
