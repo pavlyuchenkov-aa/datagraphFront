@@ -5,6 +5,7 @@ import axios from 'axios';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Slider from '@mui/material/Slider';
 import TabContext from '@mui/lab/TabContext';
@@ -174,6 +175,22 @@ const Filters = (props) => {
         }
     }
 
+    const clearFilters = () => {
+
+        setCompanyName("");
+        setCeoName("");
+        setDateRange([1980, 2000]);
+        setStaffRange([100000, 400000]);
+        setdepartmentNames([]);
+
+        setProductName("");
+        setProductLifetime([1980, 2000]);
+        setIsProductVerified(false);
+
+        props.clearFilters();
+        handleClose();
+    }
+
     const applyCompanyFilters = () => {
         var departmentIds = [];
         departmentsData.map((item) => {
@@ -198,10 +215,13 @@ const Filters = (props) => {
         axios.post('http://localhost:7328/filterCompany', companyFilters)
             .then(function (response) {
                 console.log(response.data);
+                props.changeNodesOpacity(response.data);
+                handleClose();
             })
             .catch(function (error) {
                 console.log(error);
             });
+
     }
 
     const applyProductFilters = () => {
@@ -218,10 +238,13 @@ const Filters = (props) => {
         axios.post('http://localhost:7328/filterProduct', productFilters)
             .then((response) => {
                 console.log(response.data);
+                props.changeNodesOpacity(response.data);
+                handleClose();
             })
             .catch((error) => {
                 console.log(error);
             });
+        
     }
 
     React.useEffect(() => {
@@ -259,7 +282,7 @@ const Filters = (props) => {
         setCompanyInfo(companyInfo);
         setProductInfo(productInfo);
 
-    }, [props.data])
+    }, [])
 
     return (
         <Toolbar>
@@ -286,30 +309,21 @@ const Filters = (props) => {
                             </Box>
                             <TabPanel value="Фильтрация компаний">
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
-                                    <InputLabel id="demo-simple-select-autowidth-label">Наименование компании</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-autowidth-label"
-                                        id="demo-simple-select-autowidth"
+                                    <TextField
+                                        id="outlined-required"
                                         label="Наименование компании"
                                         onChange={handleCompanyNameChange}
                                         value={companyName}
-                                        defaultValue=''
-                                    >
-                                        {compInfo && compInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
-                                    </Select>
+                                    />
+
                                 </FormControl>
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
-                                    <InputLabel id="demo-simple-select-autowidth-label">Имя владельца</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-autowidth-label"
-                                        id="demo-simple-select-autowidth"
+                                    <TextField
+                                        id="outlined-required"
                                         label="Имя владельца"
                                         onChange={handleCeoNameChange}
                                         value={ceoName}
-                                        defaultValue=''
-                                    >
-                                        {compInfo && compInfo.ceos.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
-                                    </Select>
+                                    />
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
                                     <Typography id="track-false-slider" gutterBottom>
@@ -368,24 +382,19 @@ const Filters = (props) => {
                                 <Separator />
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
                                     <Button variant="contained" onClick={applyCompanyFilters}>Применить</Button>
-                                    <Button variant="text">
+                                    <Button onClick={clearFilters} variant="text">
                                         Сбросить
                                     </Button>
                                 </Box>
                             </TabPanel>
                             <TabPanel value="Фильтрация продуктов">
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
-                                    <InputLabel id="demo-simple-select-autowidth-label">Наименование продукта</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-autowidth-label"
-                                        id="demo-simple-select-autowidth"
+                                    <TextField
+                                        id="outlined-required"
                                         label="Наименование продукта"
-                                        onChange={handleProductNameChange}
                                         value={productName}
-                                        defaultValue=''
-                                    >
-                                        {prodInfo && prodInfo.names.map(item => <MenuItem key={Math.random().toString(36).substring(2, 9)} value={item}>{item}</MenuItem>)}
-                                    </Select>
+                                        onChange={handleProductNameChange}
+                                    />
                                 </FormControl>
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
                                     <Typography id="track-false-range-slider" gutterBottom>
@@ -408,7 +417,9 @@ const Filters = (props) => {
                                     </FormGroup>
                                     <Separator />
                                     <Button onClick={applyProductFilters} variant="contained">Применить</Button>
-                                    <Button variant="text">Сбросить</Button>
+                                    <Button onClick={clearFilters} variant="text">
+                                        Сбросить
+                                    </Button>
                                 </Box>
                             </TabPanel>
                         </TabContext>

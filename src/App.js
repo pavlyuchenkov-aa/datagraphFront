@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Graph } from 'react-d3-graph';
 import axios from 'axios';
 import ZoomControlButtons from './components/ZoomControlButtons/';
@@ -9,16 +9,20 @@ import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
 
-const GRAPH_DATA_URL = 'http://localhost:7328/get:short';
+const FULL_GRAPH_DATA_URL= 'http://localhost:7328/get:full';
+const MINI_GRAPH_DATA_URL = 'http://localhost:7328/get:short';
 
 export default function App() {
-  const reactRef = useRef(null);
   const panelRef = useRef(null);
   const [config, setConfig] = useState(myConfig);
   const [graphData, setGraphData] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
 
   const onClickNode = (nodeId) => {
+    if (graphData.nodes.find(element => element.id == nodeId).opacity < 1) {
+      return;
+    }
+
     const nodeIndex = graphData.nodes.findIndex(element => element.id == nodeId);
     fetchNodeData(graphData, nodeIndex);
   };
@@ -41,39 +45,58 @@ export default function App() {
 
   const onZoomIn = () => {
     const newConfig = { ...config };
-    newConfig.initialZoom += 0.25;
-    setConfig(newConfig);
+      newConfig.initialZoom += 0.25;
+
+      if (newConfig.initialZoom >= newConfig.maxZoom) {
+        newConfig.initialZoom = newConfig.maxZoom;
+      } 
+
+      if (newConfig.initialZoom > 1) {
+        fetchGraphData(FULL_GRAPH_DATA_URL);
+      }
+
+      setConfig(newConfig);
+
+      console.log(newConfig.initialZoom)
   }
 
   const onZoomOut = () => {
-    const newConfig = { ...config };
-    newConfig.initialZoom -= 0.25;
-    setConfig(newConfig);
+      const newConfig = { ...config };
+      newConfig.initialZoom -= 0.25;
+
+      if (newConfig.initialZoom <= newConfig.minZoom) {
+        newConfig.initialZoom = newConfig.minZoom;
+      } 
+
+      if (newConfig.initialZoom <= 1) {
+        fetchGraphData(MINI_GRAPH_DATA_URL);
+      }
+
+      setConfig(newConfig);
+
+      console.log(newConfig.initialZoom)
   }
 
-  const onZoomChange = (prevZoom, newZoom) => {
-    console.log(newZoom);
-  }
+  const fetchGraphData = useCallback((query) => {
+    console.log("graph rendered");
+    axios.get(query)
+      .then(response => {
+        setGraphData(response.data)
+        fetchNodeData(response.data, 0);
+        setIsFetching(false);
+      })
+      .catch(e => {
+        console.log(e);
+        setConfig({});
+        setGraphData([]);
+      });
+  }, [])
 
   useEffect(() => {
     setConfig(myConfig);
     setIsFetching(true);
-    const fetchGraphData = () => {
-      axios.get(GRAPH_DATA_URL)
-        .then(response => {
-          setGraphData(response.data)
-          fetchNodeData(response.data, 0);
-          setIsFetching(false);
-        })
-        .catch(e => {
-          console.log(e);
-          setConfig({});
-          setGraphData([]);
-        });
-    };
-
-    fetchGraphData();
-  }, [])
+    fetchGraphData(MINI_GRAPH_DATA_URL);
+  }, [fetchGraphData])
 
   const fetchNodeData = (data, nodeIndex) => {
     let query = '';
@@ -117,14 +140,65 @@ export default function App() {
       });
   }
 
-  function updateGraphData(newGraphData) {
+  const onZoomChange = (prevZoom, newZoom) => {
+    /*
+    const changeZoomView = 0.4;
+
+    if (newZoom >= changeZoomView) {
+      fetchGraphData(FULL_GRAPH_DATA_URL);
+    }
+
+    if (newZoom < changeZoomView) {
+      fetchGraphData(MINI_GRAPH_DATA_URL);
+    }
+    */
+
+  }
+
+  const clearFilters = () => {
+    const newGraphData = { ...graphData }
+
+    newGraphData.nodes.map((el) => {
+      el.opacity = 1;
+    });
+
+    newGraphData.links.map((el) => {
+      el.opacity = 1;
+    })
+
+    setGraphData(newGraphData);
+  }
+
+  const changeNodesOpacity = (nodeIds) => {
+    const newGraphData = { ...graphData }
+
+    newGraphData.nodes.map((el) => {
+      if (nodeIds.includes(el.id)) {
+        el.opacity = 1;
+      }
+      else {
+        el.opacity = 0.1;
+      }
+    });
+
+    newGraphData.links.map((el) => {
+    
+      if (nodeIds.includes(el.source) && nodeIds.includes(el.target)) {
+        el.opacity = 1;
+      }
+      else {
+        el.opacity = 0.1;
+      }
+    })
+
+    setGraphData(newGraphData);
   }
 
   return (
     <div className="App">
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <Header data={graphData} updateGraphData={updateGraphData} />
+        <Header changeNodesOpacity={changeNodesOpacity} clearFilters={clearFilters}/>
         <SidePanel ref={panelRef} isFetching={isFetching} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f0f0' }}>
           <ZoomControlButtons
@@ -132,7 +206,6 @@ export default function App() {
             onZoomOut={onZoomOut}
           />
           <Graph
-            ref={reactRef}
             id={"company-data"}
             data={graphData}
             config={config}
