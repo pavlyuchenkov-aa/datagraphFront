@@ -26,7 +26,7 @@ const Header = (props) => {
         >
           DataGraph
         </Typography>
-        <Filters data={props.data} updateGraphData={props.updateGraphData}/>
+        <Filters data={props.data} changeNodesOpacity={props.changeNodesOpacity} clearFilters={props.clearFilters}/>
       </Toolbar>
     </AppBar>
   )
