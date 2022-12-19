@@ -8,11 +8,10 @@ import Header from './components/Header/Header'
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
-
-const FULL_GRAPH_DATA_URL= 'http://localhost:7328/get:full';
-const MINI_GRAPH_DATA_URL = 'http://localhost:7328/get:short';
+import { SERVER_URL, MINI_GRAPH_DATA_URL, FULL_GRAPH_DATA_URL} from './constants/globalVariables';
 
 export default function App() {
+  const reactRef = useRef(null);
   const panelRef = useRef(null);
   const [config, setConfig] = useState(myConfig);
   const [graphData, setGraphData] = useState([]);
@@ -32,11 +31,11 @@ export default function App() {
     let sourceNodeType = '';
 
     if (graphData.nodes.find(element => element.id == source).nodeType == "Компания") {
-      query = "http://localhost:7328/link/company?source=" + source + "&target=" + target;
+      query = SERVER_URL + "link/company?source=" + source + "&target=" + target;
       sourceNodeType = "Компания";
     }
     else if (graphData.nodes.find(element => element.id == source).nodeType == "Продукт") {
-      query = "http://localhost:7328/link/products?source=" + source + "&target=" + target;
+      query = SERVER_URL + "link/products?source=" + source + "&target=" + target;
       sourceNodeType = "Продукт";
     }
 
@@ -45,36 +44,36 @@ export default function App() {
 
   const onZoomIn = () => {
     const newConfig = { ...config };
-      newConfig.initialZoom += 0.25;
+    newConfig.initialZoom += 0.25;
 
-      if (newConfig.initialZoom >= newConfig.maxZoom) {
-        newConfig.initialZoom = newConfig.maxZoom;
-      } 
+    if (newConfig.initialZoom >= newConfig.maxZoom) {
+      newConfig.initialZoom = newConfig.maxZoom;
+    }
 
-      if (newConfig.initialZoom > 1) {
-        fetchGraphData(FULL_GRAPH_DATA_URL);
-      }
+    if (newConfig.initialZoom > 1) {
+      fetchGraphData(FULL_GRAPH_DATA_URL);
+    }
 
-      setConfig(newConfig);
+    setConfig(newConfig);
 
-      console.log(newConfig.initialZoom)
+    console.log(newConfig.initialZoom)
   }
 
   const onZoomOut = () => {
-      const newConfig = { ...config };
-      newConfig.initialZoom -= 0.25;
+    const newConfig = { ...config };
+    newConfig.initialZoom -= 0.25;
 
-      if (newConfig.initialZoom <= newConfig.minZoom) {
-        newConfig.initialZoom = newConfig.minZoom;
-      } 
+    if (newConfig.initialZoom <= newConfig.minZoom) {
+      newConfig.initialZoom = newConfig.minZoom;
+    }
 
-      if (newConfig.initialZoom <= 1) {
-        fetchGraphData(MINI_GRAPH_DATA_URL);
-      }
+    if (newConfig.initialZoom <= 1) {
+      fetchGraphData(MINI_GRAPH_DATA_URL);
+    }
 
-      setConfig(newConfig);
+    setConfig(newConfig);
 
-      console.log(newConfig.initialZoom)
+    console.log(newConfig.initialZoom)
   }
 
   const fetchGraphData = useCallback((query) => {
@@ -93,7 +92,6 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    setConfig(myConfig);
     setIsFetching(true);
     fetchGraphData(MINI_GRAPH_DATA_URL);
   }, [fetchGraphData])
@@ -104,11 +102,11 @@ export default function App() {
 
     if (data.nodes[nodeIndex].nodeType == "Компания") {
       nodeType = "companyNode";
-      query = 'http://localhost:7328/company?id=' + data.nodes[nodeIndex].id;
+      query = SERVER_URL + "company?id=" + data.nodes[nodeIndex].id;
     }
     else if (data.nodes[nodeIndex].nodeType == "Продукт") {
       nodeType = "productNode";
-      query = 'http://localhost:7328/product?id=' + data.nodes[nodeIndex].id;
+      query = SERVER_URL + "product?id=" + data.nodes[nodeIndex].id;
     }
 
     axios.get(query)
@@ -140,21 +138,6 @@ export default function App() {
       });
   }
 
-  const onZoomChange = (prevZoom, newZoom) => {
-    /*
-    const changeZoomView = 0.4;
-
-    if (newZoom >= changeZoomView) {
-      fetchGraphData(FULL_GRAPH_DATA_URL);
-    }
-
-    if (newZoom < changeZoomView) {
-      fetchGraphData(MINI_GRAPH_DATA_URL);
-    }
-    */
-
-  }
-
   const clearFilters = () => {
     const newGraphData = { ...graphData }
 
@@ -182,7 +165,7 @@ export default function App() {
     });
 
     newGraphData.links.map((el) => {
-    
+
       if (nodeIds.includes(el.source) && nodeIds.includes(el.target)) {
         el.opacity = 1;
       }
@@ -198,20 +181,24 @@ export default function App() {
     <div className="App">
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <Header changeNodesOpacity={changeNodesOpacity} clearFilters={clearFilters}/>
+        <Header changeNodesOpacity={changeNodesOpacity} clearFilters={clearFilters} />
         <SidePanel ref={panelRef} isFetching={isFetching} />
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f0f0' }}>
+        <Box component="main" 
+          sx = {{
+            backgroundColor: '#f0f0f0'
+          }}
+        >
           <ZoomControlButtons
             onZoomIn={onZoomIn}
             onZoomOut={onZoomOut}
           />
           <Graph
+            ref={reactRef}
             id={"company-data"}
             data={graphData}
             config={config}
             onClickNode={onClickNode}
             onClickLink={onClickLink}
-            onZoomChange={onZoomChange}
           />
         </Box>
       </Box>

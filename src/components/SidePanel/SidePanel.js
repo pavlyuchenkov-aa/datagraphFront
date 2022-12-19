@@ -17,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import StarIcon from '@mui/icons-material/Star';
 import Loader from '../Loader/Loader';
+import { formatNumberToK } from '../../constants/globalVariables';
 
 const drawerWidth = 450;
 
@@ -39,10 +40,6 @@ const SidePanel = forwardRef((props, ref) => {
         };
     });
 
-    const formatNumberToK = (num) => {
-        return Math.abs(num) > 999 ? Math.sign(num) * ((Math.abs(num) / 1000).toFixed(1)) + 'K' : Math.sign(num) * Math.abs(num)
-    }
-
     if (selectedElement == "companyNode") {
         return (
             <Drawer
@@ -52,23 +49,62 @@ const SidePanel = forwardRef((props, ref) => {
                     flexShrink: 0,
                     [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' }
                 }}
+
             >
                 <Toolbar />
                 {props.isFetching && <Loader />}
                 {!props.isFetching &&
-                    <Card sx={{ minWidth: 275 }} key={selectedElementData && selectedElementData.id}>
+                    <Card style={{ minWidth: 275 }}
+                        sx={{
+                            overflowY: 'scroll',
+                            "&::-webkit-scrollbar": {
+                                width: 7
+                            },
+                            "&::-webkit-scrollbar-track": {
+                                backgroundColor: "white"
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "lightgrey",
+                                borderRadius: 2
+                            }
+                        }}
+                        key={selectedElementData && selectedElementData.id}
+                    >
                         <CardHeader
+                            sx={{
+                                display: "flex",
+                                overflow: "hidden",
+                                "& .MuiCardHeader-content": {
+                                    overflow: "hidden"
+                                }
+                            }}
                             avatar={
                                 <Avatar aria-label="nodeAvatar">
                                     {selectedElementData && selectedElementData.name[0]}
                                 </Avatar>
                             }
-                            titleTypographyProps={{ variant: 'h6' }}
+                            titleTypographyProps={{ variant: 'h6', noWrap: true }}
                             title={selectedElementData && "Компания " + selectedElementData.name}
                             subheader={selectedElementData && "от " + selectedElementData.ceo}
+                            subheaderTypographyProps={{ noWrap: true }}
                         />
                         <CardContent >
-                            <Typography variant="body2">
+                            <Typography variant="body2"
+                                style={{ maxHeight: 370 }}
+                                sx={{
+                                    overflowY: 'scroll',
+                                    "&::-webkit-scrollbar": {
+                                        width: 7
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                        backgroundColor: "white"
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        backgroundColor: "lightgrey",
+                                        borderRadius: 2
+                                    }
+                                }}
+                            >
                                 {selectedElementData && selectedElementData.description}
                             </Typography>
                             <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} style={{ display: 'flex', flexDirection: 'row' }}>
@@ -147,19 +183,57 @@ const SidePanel = forwardRef((props, ref) => {
                 <Toolbar />
                 {props.isFetching && <Loader />}
                 {!props.isFetching &&
-                    <Card sx={{ minWidth: 275 }} key={selectedElementData && selectedElementData.id}>
+                    <Card style={{ minWidth: 275 }}
+                        sx={{
+                            overflowY: 'scroll',
+                            "&::-webkit-scrollbar": {
+                                width: 7
+                            },
+                            "&::-webkit-scrollbar-track": {
+                                backgroundColor: "white"
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "lightgrey",
+                                borderRadius: 2
+                            }
+                        }}
+                        key={selectedElementData && selectedElementData.id}
+                    >
                         <CardHeader
+                            sx={{
+                                display: "flex",
+                                overflow: "hidden",
+                                "& .MuiCardHeader-content": {
+                                    overflow: "hidden"
+                                }
+                            }}
                             avatar={
                                 <Avatar aria-label="nodeAvatar">
                                     {selectedElementData && selectedElementData.name[0]}
                                 </Avatar>
                             }
-                            titleTypographyProps={{ variant: 'h6' }}
+                            titleTypographyProps={{ variant: 'h6', noWrap: true }}
                             title={selectedElementData && "Продукт " + selectedElementData.name}
                             subheader={selectedElementData && "от компании " + selectedElementData.company.name}
+                            subheaderTypographyProps={{ noWrap: true }}
                         />
                         <CardContent>
-                            <Typography variant="body2">
+                            <Typography variant="body2"
+                                style={{ maxHeight: 370 }}
+                                sx={{
+                                    overflowY: 'scroll',
+                                    "&::-webkit-scrollbar": {
+                                        width: 7
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                        backgroundColor: "white"
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        backgroundColor: "lightgrey",
+                                        borderRadius: 2
+                                    }
+                                }}
+                            >
                                 {selectedElementData && selectedElementData.description}
                             </Typography>
                             <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} style={{ display: 'flex', flexDirection: 'row' }}>
@@ -196,14 +270,22 @@ const SidePanel = forwardRef((props, ref) => {
                 <Toolbar />
                 <Card sx={{ minWidth: 275 }}>
                     <CardHeader
+                        sx={{
+                            display: "flex",
+                            overflow: "hidden",
+                            "& .MuiCardHeader-content": {
+                                overflow: "hidden"
+                            }
+                        }}
                         avatar={
                             <Avatar aria-label="time-selection">
                                 T
                             </Avatar>
                         }
-                        titleTypographyProps={{ variant: 'h6' }}
+                        titleTypographyProps={{ variant: 'h6', noWrap: true }}
                         title="Временной диапазон"
                         subheader={selectedElementData.timeline}
+                        subheaderTypographyProps={{ noWrap: true }}
                     />
                     <CardContent>
                         <Typography variant="h6">
@@ -226,6 +308,7 @@ const SidePanel = forwardRef((props, ref) => {
                     </CardContent>
                 </Card>
             </Drawer>
+
         )
     }
 });

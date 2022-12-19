@@ -2,6 +2,7 @@ import * as React from 'react';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import axios from 'axios';
+import moment from 'moment';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -25,6 +26,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { styled } from '@mui/material/styles';
 import ListItemText from '@mui/material/ListItemText';
+import { ITEM_HEIGHT, ITEM_PADDING_TOP, SERVER_URL, formatNumberToK } from '../../constants/globalVariables';
 
 const Separator = styled('div')(
     ({ theme }) => `
@@ -34,17 +36,26 @@ const Separator = styled('div')(
 
 const staffSizeMarks = [
     {
-        value: 2,
-        label: '2',
+        value: null,
+        label: '',
     },
     {
-        value: 2000000,
-        label: '2M',
+        value: null,
+        label: '',
     },
 ];
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
+const yearMarks = [
+    {
+        value: null,
+        label: '',
+    },
+    {
+        value: null,
+        label: '',
+    },
+];
+
 const MenuProps = {
     PaperProps: {
         style: {
@@ -54,24 +65,15 @@ const MenuProps = {
     },
 };
 
-const yearMarks = [
-    {
-        value: 1700,
-        label: '1700',
-    },
-    {
-        value: 2022,
-        label: '2022',
-    },
-];
-
 const Filters = (props) => {
     const [open, setOpen] = React.useState(false);
     const [tabVal, settabVal] = React.useState('Фильтрация компаний');
     const [daliogTitle, setDialogTitle] = React.useState('Фильтрация компаний');
     const [departmentsData, setDepartmentsData] = React.useState([]);
     const [departmentNames, setdepartmentNames] = React.useState([]);
-
+    const [productName, setProductName] = React.useState('');
+    const [productLifetime, setProductLifetime] = React.useState([1980, 2000]);
+    const [isProductVerified, setIsProductVerified] = React.useState(false);
     const [companyName, setCompanyName] = React.useState('');
     const [ceoName, setCeoName] = React.useState('');
     const [dateRange, setDateRange] = React.useState([1980, 2000]);
@@ -79,15 +81,18 @@ const Filters = (props) => {
     const [compInfo, setCompanyInfo] = React.useState({
         names: [],
         ceos: [],
-        departments: []
-    });
-    const [prodInfo, setProductInfo] = React.useState({
-        names: []
+        departments: [],
+        minStaffSize: null,
+        maxStaffSize: null,
+        minDate: '',
+        maxDate: ''
     });
 
-    const [productName, setProductName] = React.useState('');
-    const [productLifetime, setProductLifetime] = React.useState([1980, 2000]);
-    const [isProductVerified, setIsProductVerified] = React.useState(false);
+    const [prodInfo, setProductInfo] = React.useState({
+        names: [],
+        minDate: '',
+        maxDate: ''
+    });
 
     const handleProductNameChange = (event) => {
         const {
@@ -212,7 +217,7 @@ const Filters = (props) => {
 
         console.log(companyFilters);
 
-        axios.post('http://localhost:7328/filterCompany', companyFilters)
+        axios.post(SERVER_URL + "filterCompany", companyFilters)
             .then(function (response) {
                 console.log(response.data);
                 props.changeNodesOpacity(response.data);
@@ -221,7 +226,6 @@ const Filters = (props) => {
             .catch(function (error) {
                 console.log(error);
             });
-
     }
 
     const applyProductFilters = () => {
@@ -235,7 +239,7 @@ const Filters = (props) => {
 
         console.log(productFilters);
 
-        axios.post('http://localhost:7328/filterProduct', productFilters)
+        axios.post(SERVER_URL + "filterProduct", productFilters)
             .then((response) => {
                 console.log(response.data);
                 props.changeNodesOpacity(response.data);
@@ -244,21 +248,27 @@ const Filters = (props) => {
             .catch((error) => {
                 console.log(error);
             });
-        
+
     }
 
     React.useEffect(() => {
         var companyInfo = {
             names: [],
             ceos: [],
-            departments: []
+            departments: [],
+            minStaffSize: null,
+            maxStaffSize: null,
+            minDate: '',
+            maxDate: ''
         };
 
         var productInfo = {
-            names: []
+            names: [],
+            minDate: '',
+            maxDate: ''
         }
 
-        axios.get("http://localhost:7328/filterPresets")
+        axios.get(SERVER_URL + "filterPresets")
             .then((response) => {
                 response.data.companyFilters.companyNames.map(item => (
                     companyInfo.names.push(item)
@@ -272,6 +282,24 @@ const Filters = (props) => {
                 response.data.productFilters.productNames.map(item => (
                     productInfo.names.push(item)
                 ))
+
+                companyInfo.minStaffSize = response.data.companyFilters.minStaffSize;
+                companyInfo.maxStaffSize = response.data.companyFilters.maxStaffSize;
+
+                companyInfo.minDate = moment(response.data.companyFilters.minDate).utc().format('YYYY');
+                companyInfo.maxDate = moment(response.data.companyFilters.maxDate).utc().format('YYYY');
+                productInfo.minDate = moment(response.data.productFilters.minDate).utc().format('YYYY');
+                productInfo.maxDate = moment(response.data.productFilters.maxDate).utc().format('YYYY');
+
+                staffSizeMarks[0].value = companyInfo.minStaffSize;
+                staffSizeMarks[1].value = companyInfo.maxStaffSize;
+                staffSizeMarks[0].label = formatNumberToK(companyInfo.minStaffSize);
+                staffSizeMarks[1].label = formatNumberToK(companyInfo.maxStaffSize);
+
+                yearMarks[0].value = Number(companyInfo.minDate);
+                yearMarks[1].value = Number(companyInfo.maxDate);
+                yearMarks[0].label = companyInfo.minDate;
+                yearMarks[1].label = companyInfo.maxDate;
 
                 setDepartmentsData(response.data.companyFilters.departments);
             })
@@ -333,8 +361,8 @@ const Filters = (props) => {
                                         size="small"
                                         aria-labelledby="track-false-slider"
                                         defaultValue={[100000, 400000]}
-                                        min={2}
-                                        max={2000000}
+                                        min={compInfo.minStaffSize}
+                                        max={compInfo.maxStaffSize}
                                         marks={staffSizeMarks}
                                         valueLabelDisplay="auto"
                                         onChange={handleStaffRangeChange}
@@ -349,8 +377,8 @@ const Filters = (props) => {
                                         size="small"
                                         aria-labelledby="track-false-range-slider"
                                         defaultValue={[1980, 2000]}
-                                        min={1700}
-                                        max={2022}
+                                        min={Number(compInfo.minDate)}
+                                        max={Number(compInfo.maxDate)}
                                         marks={yearMarks}
                                         valueLabelDisplay="auto"
                                         onChange={handleTimeRangeChange}
@@ -404,8 +432,8 @@ const Filters = (props) => {
                                         size="small"
                                         aria-labelledby="track-false-range-slider"
                                         defaultValue={[1980, 2000]}
-                                        min={1700}
-                                        max={2022}
+                                        min={Number(compInfo.minDate)}
+                                        max={Number(compInfo.maxDate)}
                                         marks={yearMarks}
                                         valueLabelDisplay="auto"
                                         onChange={handleProductLifetimeChange}
