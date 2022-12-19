@@ -16,6 +16,11 @@
 
 #graph-id-graph-wrapper {
   text-align: center;
+  width: 300px;
+ height: 150px;
+ resize: both;
+ overflow: auto;
+ border: 1px dashed #aaa;
 }
 
 #graph-id-graph-wrapper > svg {
