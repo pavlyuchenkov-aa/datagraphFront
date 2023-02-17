@@ -42,7 +42,7 @@ const SidePanel = forwardRef((props, ref) => {
 
     if (selectedElement == "companyNode") {
         return (
-            <Drawer
+            <Drawer data-testid = "side-panel"
                 variant="permanent"
                 sx={{
                     width: drawerWidth,
@@ -71,6 +71,7 @@ const SidePanel = forwardRef((props, ref) => {
                         key={selectedElementData && selectedElementData.id}
                     >
                         <CardHeader
+                            data-testid = "companyHeader"
                             sx={{
                                 display: "flex",
                                 overflow: "hidden",
@@ -127,7 +128,23 @@ const SidePanel = forwardRef((props, ref) => {
                                     <ListItemText sx={{ ml: -5 }} secondary={selectedElementData && formatNumberToK(selectedElementData.staffSize)} />
                                 </ListItem>
                             </List>
-                            <Stack direction="row" spacing={1}>
+                            <Stack
+                                data-testid = "departmentTags"
+                                sx={{
+                                    overflowY: 'scroll',
+                                    "&::-webkit-scrollbar": {
+                                        width: 7
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                        backgroundColor: "white"
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        backgroundColor: "lightgrey",
+                                        borderRadius: 2
+                                    }
+                                }}
+
+                                direction="row" spacing={1}>
                                 {selectedElementData && selectedElementData.departments.map(item => <Chip key={item} label={item} />)}
                             </Stack>
                             <Card sx={{ mt: 2 }}>
@@ -172,7 +189,7 @@ const SidePanel = forwardRef((props, ref) => {
     }
     else if (selectedElement == "productNode") {
         return (
-            <Drawer
+            <Drawer data-testid = "side-panel"
                 variant="permanent"
                 sx={{
                     width: drawerWidth,
@@ -200,6 +217,7 @@ const SidePanel = forwardRef((props, ref) => {
                         key={selectedElementData && selectedElementData.id}
                     >
                         <CardHeader
+                            data-testid = "productHeader"
                             sx={{
                                 display: "flex",
                                 overflow: "hidden",
@@ -245,10 +263,25 @@ const SidePanel = forwardRef((props, ref) => {
                                 </ListItem>
                             </List>
                             {
-                                ((selectedElementData.link.length !== 0) && (RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(selectedElementData.link))) &&
+                                (selectedElementData && (selectedElementData.link.length !== 0) && (RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(selectedElementData.link))) &&
                                 <Chip label="Верифицированный продукт" component="a" href={selectedElementData && selectedElementData.link} color="success" icon={<LogoutIcon sx={{ fontSize: 15 }} />} clickable />
                             }
-                            <Stack sx={{ mt: 1.5 }} direction="row" spacing={1}>
+                            <Stack
+                                sx={{
+                                    mt: 1.5,
+                                    overflowY: 'scroll',
+                                    "&::-webkit-scrollbar": {
+                                        width: 7
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                        backgroundColor: "white"
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        backgroundColor: "lightgrey",
+                                        borderRadius: 2
+                                    }
+                                }}
+                                direction="row" spacing={1}>
                                 {selectedElementData && selectedElementData.departments.map(item => <Chip key={Math.random().toString(36).substring(2, 9)} label={item.name} />)}
                             </Stack>
                         </CardContent>
@@ -259,7 +292,7 @@ const SidePanel = forwardRef((props, ref) => {
     }
     else if (selectedElement === "link") {
         return (
-            <Drawer
+            <Drawer data-testid = "side-panel"
                 variant="permanent"
                 sx={{
                     width: drawerWidth,
@@ -270,6 +303,7 @@ const SidePanel = forwardRef((props, ref) => {
                 <Toolbar />
                 <Card sx={{ minWidth: 275 }}>
                     <CardHeader
+                        data-testid = "linkHeader"
                         sx={{
                             display: "flex",
                             overflow: "hidden",
@@ -284,7 +318,7 @@ const SidePanel = forwardRef((props, ref) => {
                         }
                         titleTypographyProps={{ variant: 'h6', noWrap: true }}
                         title="Временной диапазон"
-                        subheader={selectedElementData.timeline}
+                        subheader={selectedElementData && selectedElementData.timeline}
                         subheaderTypographyProps={{ noWrap: true }}
                     />
                     <CardContent>
@@ -296,13 +330,13 @@ const SidePanel = forwardRef((props, ref) => {
                                 <ListItemIcon>
                                     <StarIcon />
                                 </ListItemIcon>
-                                <ListItemText primary={selectedElementData.sourceNodeName} secondary={"от " + moment(selectedElementData.sourceNodeYear).utc().format('YYYY') + " года"} />
+                                <ListItemText primary={selectedElementData && selectedElementData.sourceNodeName} secondary={selectedElementData && "от " + moment(selectedElementData.sourceNodeYear).utc().format('YYYY') + " года"} />
                             </ListItem>
                             <ListItem>
                                 <ListItemIcon>
                                     <StarIcon />
                                 </ListItemIcon>
-                                <ListItemText primary={selectedElementData.targetNodeName} secondary={"от " + moment(selectedElementData.targetNodeYear).utc().format('YYYY') + " года"} />
+                                <ListItemText primary={selectedElementData && selectedElementData.targetNodeName} secondary={selectedElementData && "от " + moment(selectedElementData.targetNodeYear).utc().format('YYYY') + " года"} />
                             </ListItem>
                         </List>
                     </CardContent>
