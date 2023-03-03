@@ -56,6 +56,17 @@ const yearMarks = [
     },
 ];
 
+const yearMarksProd = [
+    {
+        value: null,
+        label: '',
+    },
+    {
+        value: null,
+        label: '',
+    },
+];
+
 const MenuProps = {
     PaperProps: {
         style: {
@@ -72,7 +83,7 @@ const Filters = (props) => {
     const [departmentsData, setDepartmentsData] = React.useState([]);
     const [departmentNames, setdepartmentNames] = React.useState([]);
     const [productName, setProductName] = React.useState('');
-    const [productLifetime, setProductLifetime] = React.useState([1980, 2000]);
+    const [productLifetime, setProductLifetime] = React.useState([1996, 2000]);
     const [isProductVerified, setIsProductVerified] = React.useState(false);
     const [companyName, setCompanyName] = React.useState('');
     const [ceoName, setCeoName] = React.useState('');
@@ -189,7 +200,7 @@ const Filters = (props) => {
         setdepartmentNames([]);
 
         setProductName("");
-        setProductLifetime([1980, 2000]);
+        setProductLifetime([1996, 2000]);
         setIsProductVerified(false);
 
         props.clearFilters();
@@ -236,12 +247,9 @@ const Filters = (props) => {
             maxDate: JSON.stringify(productLifetime[1]) + "-01-01T00:00:00Z",
             isVerified: isProductVerified
         };
-
-        console.log(productFilters);
-
+        
         axios.post(SERVER_URL + "filterProduct", productFilters)
             .then((response) => {
-                console.log(response.data);
                 props.changeNodesOpacity(response.data);
                 handleClose();
             })
@@ -301,6 +309,11 @@ const Filters = (props) => {
                 yearMarks[0].label = companyInfo.minDate;
                 yearMarks[1].label = companyInfo.maxDate;
 
+                yearMarksProd[0].value = Number(productInfo.minDate);
+                yearMarksProd[1].value = Number(productInfo.maxDate);
+                yearMarksProd[0].label = productInfo.minDate;
+                yearMarksProd[1].label = productInfo.maxDate;
+
                 setDepartmentsData(response.data.companyFilters.departments);
             })
             .catch(e => {
@@ -313,7 +326,7 @@ const Filters = (props) => {
     }, [])
 
     return (
-        <Toolbar>
+        <Toolbar data-testid = "filters">
             <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -324,21 +337,22 @@ const Filters = (props) => {
             >
                 <SettingsIcon />
             </IconButton>
-            <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>{daliogTitle}</DialogTitle>
+            <Dialog data-testid = "dialog" open={open} onClose={handleClose}>
+                <DialogTitle data-testid = "dialogTitle">{daliogTitle}</DialogTitle>
                 <DialogContent>
                     <Box sx={{ width: 450, typography: 'body1' }}>
                         <TabContext value={tabVal}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <TabList onChange={handleTabChange} aria-label="lab API tabs example">
-                                    <Tab label="Компании" value="Фильтрация компаний" />
-                                    <Tab label="Продукты и релизы" value="Фильтрация продуктов" />
+                                <TabList data-testid = "tabListTest" onChange={handleTabChange} aria-label="lab API tabs example">
+                                    <Tab data-testid="compTab" label="Компании" value="Фильтрация компаний" />
+                                    <Tab data-testid="prodTab" label="Продукты и релизы" value="Фильтрация продуктов" />
                                 </TabList>
                             </Box>
                             <TabPanel value="Фильтрация компаний">
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
                                     <TextField
                                         id="outlined-required"
+                                        inputProps={{ "data-testid": "companyNameInput" }}
                                         label="Наименование компании"
                                         onChange={handleCompanyNameChange}
                                         value={companyName}
@@ -348,6 +362,7 @@ const Filters = (props) => {
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
                                     <TextField
                                         id="outlined-required"
+                                        inputProps={{ "data-testid": "ceoNameInput" }}
                                         label="Имя владельца"
                                         onChange={handleCeoNameChange}
                                         value={ceoName}
@@ -359,6 +374,7 @@ const Filters = (props) => {
                                     </Typography>
                                     <Slider
                                         size="small"
+                                        data-testid = "compStateSizeSlider"
                                         aria-labelledby="track-false-slider"
                                         defaultValue={[100000, 400000]}
                                         min={compInfo.minStaffSize}
@@ -375,6 +391,7 @@ const Filters = (props) => {
                                     </Typography>
                                     <Slider
                                         size="small"
+                                        data-testid = "compLifeTimeSlider"
                                         aria-labelledby="track-false-range-slider"
                                         defaultValue={[1980, 2000]}
                                         min={Number(compInfo.minDate)}
@@ -392,6 +409,7 @@ const Filters = (props) => {
                                         labelId="demo-multiple-checkbox-label"
                                         id="demo-multiple-checkbox"
                                         multiple
+                                        inputProps={{ "data-testid": "departmentsSelect" }}
                                         value={departmentNames}
                                         onChange={handleChange}
                                         input={<OutlinedInput label="Отрасли" />}
@@ -409,8 +427,8 @@ const Filters = (props) => {
                                 </FormControl>
                                 <Separator />
                                 <Box sx={{ m: 1, ml: -3, width: 450 }}>
-                                    <Button variant="contained" onClick={applyCompanyFilters}>Применить</Button>
-                                    <Button onClick={clearFilters} variant="text">
+                                    <Button data-testid = "applyCompBtn" variant="contained" onClick={applyCompanyFilters}>Применить</Button>
+                                    <Button data-testid = "resetBtn" onClick={clearFilters} variant="text">
                                         Сбросить
                                     </Button>
                                 </Box>
@@ -419,6 +437,7 @@ const Filters = (props) => {
                                 <FormControl sx={{ m: 1, ml: -3, minWidth: 450 }}>
                                     <TextField
                                         id="outlined-required"
+                                        inputProps={{ "data-testid": "productNameInput" }}
                                         label="Наименование продукта"
                                         value={productName}
                                         onChange={handleProductNameChange}
@@ -431,10 +450,11 @@ const Filters = (props) => {
                                     <Slider
                                         size="small"
                                         aria-labelledby="track-false-range-slider"
-                                        defaultValue={[1980, 2000]}
-                                        min={Number(compInfo.minDate)}
-                                        max={Number(compInfo.maxDate)}
-                                        marks={yearMarks}
+                                        data-testid = "prodLifetimeSlider"
+                                        defaultValue={[1996, 2000]}
+                                        min={Number(prodInfo.minDate)}
+                                        max={Number(prodInfo.maxDate)}
+                                        marks={yearMarksProd}
                                         valueLabelDisplay="auto"
                                         onChange={handleProductLifetimeChange}
                                         value={productLifetime}
@@ -444,7 +464,7 @@ const Filters = (props) => {
                                         <FormControlLabel control={<Checkbox checked={isProductVerified} onChange={handleProductVerChange} />} label="Релиз подтвержден" />
                                     </FormGroup>
                                     <Separator />
-                                    <Button onClick={applyProductFilters} variant="contained">Применить</Button>
+                                    <Button data-testid = "applyProdBtn" onClick={applyProductFilters} variant="contained">Применить</Button>
                                     <Button onClick={clearFilters} variant="text">
                                         Сбросить
                                     </Button>

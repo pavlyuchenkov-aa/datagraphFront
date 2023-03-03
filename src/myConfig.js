@@ -13,14 +13,14 @@ module.exports = {
 	panAndZoom: false,
 	staticGraph: false,
 	initialZoom: 0.5,
-	staticGraphWithDragAndDrop: false,
+	staticGraphWithDragAndDrop: true,
 	width: window.innerWidth - 450,
 	height: window.innerHeight,
 	d3: {
-		alphaTarget: 0.05,
-		gravity: -200,
-		linkLength: 100,
-		linkStrength: 6,
+		alphaTarget: 1,
+		gravity: -1000,
+		linkLength: 0,
+		linkStrength: 0,
 		disableLinkForce: false,
 	},
 	node: {
@@ -39,7 +39,7 @@ module.exports = {
 		renderLabel: false,
 		strokeColor: "none",
 		strokeWidth: 1.5,
-		svg: "https://icons.iconarchive.com/icons/sicons/basic-round-social/256/yandex-icon.png",
+		svg: "",
 		symbolType: "circle",
 		viewGenerator: null
 	},

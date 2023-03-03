@@ -8,7 +8,7 @@ import Filters from '../Filters/Filters';
 
 const Header = (props) => {
   return (
-    <AppBar component="nav" position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <AppBar data-testid = "head" component="nav" position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <IconButton
           color="inherit"
@@ -25,7 +25,7 @@ const Header = (props) => {
         >
           DataGraph
         </Typography>
-        <Filters data={props.data} changeNodesOpacity={props.changeNodesOpacity} clearFilters={props.clearFilters}/>
+        <Filters changeNodesOpacity={props.changeNodesOpacity} clearFilters={props.clearFilters}/>
       </Toolbar>
     </AppBar>
   )
