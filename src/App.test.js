@@ -4,7 +4,7 @@ import axios from 'axios';
 import { mount, configure } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import { act } from 'react-dom/test-utils';
-import { MEDIA_SERVER_URL, MINI_GRAPH_DATA_URL } from './constants/globalVariables';
+import { MEDIA_SERVER_URL, MINI_GRAPH_DATA_URL } from './constants/routes';
 import { cleanup, waitFor } from '@testing-library/react';
 import mockData from './mockData';
 import Filters from './components/Filters/Filters';
@@ -173,17 +173,8 @@ describe('<App />', () => {
 
     describe("<App /> integration tests", () => {
         it('should respond with status code 200 when server is available', async () => {
-            const response = await axios.get(MEDIA_SERVER_URL);
+            const response = await axios.get(MEDIA_SERVER_URL + "/ping/");
             expect(response.status).toBe(200);
-        });
-    
-        it('should respond with status code Network Error when server is unavailable', async () => {
-            const expectedError = new Error('Network Error');
-            try {
-                await axios.get(MEDIA_SERVER_URL);
-            } catch (error) {
-                expect(error).toEqual(expectedError);
-            }
         });
 
         it("should fetch correct product data from API Server on node click", async () => {

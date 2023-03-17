@@ -1,6 +1,3 @@
-//const SERVER_URL = "http://141.95.127.215:7328/";
-//const MINI_GRAPH_DATA_URL = 'http://141.95.127.215:7328/get:short';
-//const FULL_GRAPH_DATA_URL = 'http://141.95.127.215:7328/get:full';
 import './routes'
 
 const ITEM_HEIGHT = 48;

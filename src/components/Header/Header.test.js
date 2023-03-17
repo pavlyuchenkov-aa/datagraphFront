@@ -1,7 +1,7 @@
 import { render, screen, cleanup } from '@testing-library/react'
 import Header from './Header'
 import Typography from '@mui/material/Typography';
-import { configure, shallow, mount } from 'enzyme';
+import { configure, shallow } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import '@testing-library/jest-dom'
 
