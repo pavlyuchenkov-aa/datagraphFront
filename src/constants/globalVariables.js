@@ -1,10 +1,7 @@
 //const SERVER_URL = "http://141.95.127.215:7328/";
 //const MINI_GRAPH_DATA_URL = 'http://141.95.127.215:7328/get:short';
 //const FULL_GRAPH_DATA_URL = 'http://141.95.127.215:7328/get:full';
-const SERVER_URL = "http://localhost:7328/";
-const MINI_GRAPH_DATA_URL = 'http://localhost:7328/get:short';
-const FULL_GRAPH_DATA_URL = 'http://localhost:7328/get:full';
-const MEDIA_SERVER_URL = 'http://141.95.127.215:8082/media-server'
+import './routes'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -28,4 +25,4 @@ const formatNumberToK = (num) => {
     return (num / si[index].v).toFixed(2).replace(/\.0+$|(\.[0-9]*[1-9])0+$/, "$1") + si[index].s;
 }
 
-export { MEDIA_SERVER_URL, ITEM_HEIGHT, ITEM_PADDING_TOP, SERVER_URL, MINI_GRAPH_DATA_URL, FULL_GRAPH_DATA_URL, formatNumberToK }
+export { ITEM_HEIGHT, ITEM_PADDING_TOP, formatNumberToK }

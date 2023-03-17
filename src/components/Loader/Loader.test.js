@@ -12,21 +12,22 @@ afterEach(() => {
 });
 
 describe("<Loader />", () => {
-
-    it("should render loader", () => {
-        render(<Loader />);
-        var loaderElement = screen.getByTestId("loader");
-        expect(loaderElement).toBeInTheDocument();
-    });
-
-    it("should render self and <LinearProgress />", () => {
-        const wrapper = shallow(<Loader />);
-        expect(wrapper.contains(<LinearProgress />)).toBe(true);
-    });
-
-    it("should have sx prop", () => {
-        const wrapper = shallow(<Loader />);
-        expect(wrapper.props().sx).toBeDefined();
-        expect(wrapper.props().sx.width).toBe('100%');
-    });
+    describe("<Loader /> unit tests", () => {
+        it("should render loader", () => {
+            render(<Loader />);
+            var loaderElement = screen.getByTestId("loader");
+            expect(loaderElement).toBeInTheDocument();
+        });
+    
+        it("should render self and <LinearProgress />", () => {
+            const wrapper = shallow(<Loader />);
+            expect(wrapper.contains(<LinearProgress />)).toBe(true);
+        });
+    
+        it("should have sx prop", () => {
+            const wrapper = shallow(<Loader />);
+            expect(wrapper.props().sx).toBeDefined();
+            expect(wrapper.props().sx.width).toBe('100%');
+        });
+    })
 })

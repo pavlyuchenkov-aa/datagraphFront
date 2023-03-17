@@ -26,7 +26,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { styled } from '@mui/material/styles';
 import ListItemText from '@mui/material/ListItemText';
-import { ITEM_HEIGHT, ITEM_PADDING_TOP, SERVER_URL, formatNumberToK } from '../../constants/globalVariables';
+import { ITEM_HEIGHT, ITEM_PADDING_TOP, formatNumberToK } from '../../constants/globalVariables';
+import { SERVER_URL } from '../../constants/routes'
 
 const Separator = styled('div')(
     ({ theme }) => `
