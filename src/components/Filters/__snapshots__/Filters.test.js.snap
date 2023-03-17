@@ -1,3 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Filters /> should render Filters component 1`] = `ShallowWrapper {}`;
+exports[`<Filters /> <Filters /> module tests should render Filters component 1`] = `ShallowWrapper {}`;
+
+exports[`<Filters /> <Filters /> unit tests should render Filters component 1`] = `ShallowWrapper {}`;

@@ -8,7 +8,7 @@ import Header from './components/Header/Header'
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidePanel from './components/SidePanel/SidePanel';
-import { SERVER_URL, MINI_GRAPH_DATA_URL, FULL_GRAPH_DATA_URL } from './constants/globalVariables';
+import { SERVER_URL, MINI_GRAPH_DATA_URL, FULL_GRAPH_DATA_URL } from './constants/routes';
 
 class App extends React.Component {
   constructor(props) {

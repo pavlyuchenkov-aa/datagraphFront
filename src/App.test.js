@@ -4,7 +4,7 @@ import axios from 'axios';
 import { mount, configure } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import { act } from 'react-dom/test-utils';
-import { FULL_GRAPH_DATA_URL, MEDIA_SERVER_URL, MINI_GRAPH_DATA_URL } from './constants/globalVariables';
+import { MEDIA_SERVER_URL, MINI_GRAPH_DATA_URL } from './constants/globalVariables';
 import { cleanup, waitFor } from '@testing-library/react';
 import mockData from './mockData';
 import Filters from './components/Filters/Filters';
@@ -22,7 +22,7 @@ afterEach(() => {
 })
 
 describe('<App />', () => {
-    describe('<App /> module testing', () => {
+    describe("<App /> unit tests", () => {
         it("should render with fetched data", async () => {
             const axiosGetSpy = jest.spyOn(axios, 'get').mockResolvedValueOnce({
                 data: {
@@ -177,7 +177,7 @@ describe('<App />', () => {
             expect(response.status).toBe(200);
         });
     
-        it('should respond with status code 404 when server is unavailable', async () => {
+        it('should respond with status code Network Error when server is unavailable', async () => {
             const expectedError = new Error('Network Error');
             try {
                 await axios.get(MEDIA_SERVER_URL);
