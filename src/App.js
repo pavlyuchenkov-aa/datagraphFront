@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
 import { Graph } from 'react-d3-graph';
 import axios from 'axios';
 import ZoomControlButtons from './components/ZoomControlButtons/ZoomControlButtons';
@@ -17,7 +17,7 @@ class App extends React.Component {
     this.panelRef = React.createRef();
     this.state = {
       config: myConfig,
-      graphData: [],
+      graphData: {},
       isFetching: false
     };
   }
@@ -28,6 +28,7 @@ class App extends React.Component {
   }
 
   fetchGraphData(query) {
+    this.setState({ isFetching: true });
     console.log("graph rendered");
     axios.get(query)
       .then(response => {
@@ -38,7 +39,7 @@ class App extends React.Component {
       .catch(e => {
         console.log(e);
         this.setState({ config: {} });
-        this.setState({ graphData: [] });
+        this.setState({ graphData: {} });
       });
   }
 
@@ -74,6 +75,7 @@ class App extends React.Component {
     }
 
     const nodeIndex = this.state.graphData.nodes.findIndex(element => element.id == nodeId);
+    console.log(nodeIndex);
     this.fetchNodeData(this.state.graphData, nodeIndex);
   };
 
@@ -130,20 +132,22 @@ class App extends React.Component {
   getLinkData = (query, sourceNodeType) => {
     var linkInfo = { timeline: '', sourceNodeName: '', targetNodeName: '', sourceNodeYear: null, targetNodeYear: null };
 
-    axios.get(query)
-      .then(response => {
-        linkInfo.timeline = "от " + moment(response.data[Object.keys(response.data)[0]].year).utc().format('YYYY') + " до " + moment(response.data[Object.keys(response.data)[1]].year).utc().format('YYYY');
-        linkInfo.sourceNodeName = sourceNodeType + " " + response.data[Object.keys(response.data)[0]].name;
-        linkInfo.targetNodeName = "Продукт " + response.data[Object.keys(response.data)[1]].name;
-        linkInfo.sourceNodeYear = response.data[Object.keys(response.data)[0]].year;
-        linkInfo.targetNodeYear = response.data[Object.keys(response.data)[1]].year;
+    return axios.get(query)
+          .then((response) => {
+            linkInfo.timeline = "от " + moment(response.data[Object.keys(response.data)[0]].year).utc().format('YYYY') + " до " + moment(response.data[Object.keys(response.data)[1]].year).utc().format('YYYY');
+            linkInfo.sourceNodeName = sourceNodeType + " " + response.data[Object.keys(response.data)[0]].name;
+            linkInfo.targetNodeName = "Продукт " + response.data[Object.keys(response.data)[1]].name;
+            linkInfo.sourceNodeYear = response.data[Object.keys(response.data)[0]].year;
+            linkInfo.targetNodeYear = response.data[Object.keys(response.data)[1]].year;
 
-        this.panelRef.current.showSelectedElementData(linkInfo)
-        this.panelRef.current.showSelectedElementType("link")
-      })
-      .catch(e => {
-        console.log(e);
-      });
+            //console.log(linkInfo);
+            this.panelRef.current.showSelectedElementData(linkInfo);
+            this.panelRef.current.showSelectedElementType("link");
+
+          })
+          .catch((e) => {
+            console.log(e);
+          });
   }
 
   clearFilters = () => {
@@ -203,7 +207,7 @@ class App extends React.Component {
               onZoomOut={this.onZoomOut}
             />
             <Graph
-              data-testid="hi"
+              data-testid = "graphTest"
               ref={this.reactRef}
               id={"company-data"}
               data={this.state.graphData}
