@@ -16,6 +16,7 @@
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.2.1",
+    "axios-mock-adapter": "^1.21.2",
     "d3": "^5.5.0",
     "http-proxy-middleware": "^2.0.6",
     "jest-mock-axios": "^4.7.0-beta4",

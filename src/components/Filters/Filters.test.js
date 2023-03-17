@@ -1,10 +1,11 @@
 import React from "react";
-import { render, screen, fireEvent, waitForElementToBeRemoved, cleanup, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitForElementToBeRemoved, cleanup, act, waitFor } from '@testing-library/react'
 import Filters from './Filters';
 import '@testing-library/jest-dom'
 import axios from 'axios'
-import { configure, shallow } from 'enzyme';
+import { configure, shallow, mount } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
+import { SERVER_URL } from '../../constants/globalVariables'
 
 configure({ adapter: new Adapter() });
 
@@ -180,8 +181,8 @@ describe("<Filters />", () => {
         expect(clearFilters).toHaveBeenCalledTimes(1);
     });
 
-    describe("<Filters /> api calls", () => {
-        it("should apply produnct filters on apply button click", async () => {
+    describe("<Filters /> integration tests", () => {
+        it("should fetch correct product filters data after apply button click (minimized graph)", async () => {
             const axiosPostSpy = jest.spyOn(axios, 'post').mockResolvedValueOnce({ data: [42] });
             const changeNodesOpacity = jest.fn();
             render(<Filters changeNodesOpacity={changeNodesOpacity} />);
@@ -199,11 +200,11 @@ describe("<Filters />", () => {
             });
 
             fireEvent.click(screen.getByTestId("applyProdBtn"));
-            expect(axiosPostSpy).toBeCalledWith("http://141.95.127.215:7328/filterProduct", { "isVerified": false, "maxDate": "2000-01-01T00:00:00Z", "minDate": "1996-01-01T00:00:00Z", "productName": "Ozon.ru" });
+            expect(axiosPostSpy).toBeCalledWith(SERVER_URL + "filterProduct", { "isVerified": false, "maxDate": "2000-01-01T00:00:00Z", "minDate": "1996-01-01T00:00:00Z", "productName": "Ozon.ru" });
             axiosPostSpy.mockRestore();
         });
 
-        it("should apply company filters on apply button click", async () => {
+        it("should fetch correct company filters data from API Server on apply button click (minimized graph)", async () => {
             const axiosPostSpy = jest.spyOn(axios, 'post').mockResolvedValueOnce({ data: [78, 52, 54, 56, 59, 61, 65] });
             const changeNodesOpacity = jest.fn();
             render(<Filters changeNodesOpacity={changeNodesOpacity} />);
@@ -215,7 +216,7 @@ describe("<Filters />", () => {
             expect(screen.getByTestId("dialogTitle")).toHaveTextContent("Фильтрация компаний");
 
             fireEvent.click(screen.getByTestId("applyCompBtn"));
-            expect(axiosPostSpy).toBeCalledWith("http://141.95.127.215:7328/filterCompany", {
+            expect(axiosPostSpy).toBeCalledWith(SERVER_URL + "filterCompany", {
                 "companyName": "",
                 "departments": [],
                 "ceo": "",
