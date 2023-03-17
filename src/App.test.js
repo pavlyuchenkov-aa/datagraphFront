@@ -130,9 +130,10 @@ describe('<App />', () => {
             const instance = wrapper.instance();
             const spy = jest.spyOn(instance, 'onClickLink');
             await waitFor(() => {
-                instance.onClickLink(78, 59);
+                instance.onClickLink(35, 28);
             });
-            expect(spy).toHaveBeenCalledWith(78, 59);
+
+            expect(spy).toHaveBeenCalledWith(35, 28);
         });
 
         it("should call onClickLink method when link between product and product is clicked", async () => {
@@ -141,9 +142,9 @@ describe('<App />', () => {
             const instance = wrapper.instance();
             const spy = jest.spyOn(instance, 'onClickLink');
             await waitFor(() => {
-                instance.onClickLink(38, 40);
+                instance.onClickLink(28, 30);
             });
-            expect(spy).toHaveBeenCalledWith(38, 40);
+            expect(spy).toHaveBeenCalledWith(28, 30);
         });
 
         it("should call clearFilters with correct params", async () => {
@@ -175,6 +176,8 @@ describe('<App />', () => {
         it('should respond with status code 200 when server is available', async () => {
             const response = await axios.get(MEDIA_SERVER_URL + "/ping/");
             expect(response.status).toBe(200);
+
+            //http://localhost:7328/link/company?source=35&target=28
         });
 
         it("should fetch correct product data from API Server on node click", async () => {
@@ -189,7 +192,7 @@ describe('<App />', () => {
             })
 
             expect(spy).toHaveBeenCalledTimes(2);
-            expect(spy).toHaveBeenCalledWith(mockData.shortGraphMock, 14);
+            expect(spy).toHaveBeenCalledWith(mockData.shortGraphMock, 3);
         });
 
         it("should fetch correct company data from API Server on node click", async () => {
@@ -200,11 +203,11 @@ describe('<App />', () => {
             const graph = wrapper.find({ "data-testid": "graphTest" });
             expect(graph).toHaveLength(1);
             await waitFor(() => {
-                graph.props().onClickNode(81);
+                graph.props().onClickNode(35);
             })
 
             expect(spy).toHaveBeenCalledTimes(2);
-            expect(spy).toHaveBeenCalledWith(mockData.shortGraphMock, 2);
+            expect(spy).toHaveBeenCalledWith(mockData.shortGraphMock, 0);
         })
 
         it("should fetch correct link data from API Server", async () => {
@@ -215,10 +218,11 @@ describe('<App />', () => {
             const graph = wrapper.find({ "data-testid": "graphTest" });
             expect(graph).toHaveLength(1);
             await waitFor(() => {
-                graph.props().onClickLink(79, 32);
+                graph.props().onClickLink(35, 28);
             })
 
-            expect(spy).toHaveBeenCalledWith("http://localhost:7328/link/company?source=79&target=32", "Компания");
+            
+            expect(spy).toHaveBeenCalledWith("http://localhost:7328/link/company?source=35&target=28", "Компания");
         })
 
         it("should fetch correct full graph data from API Server when zoom scale is more 1", async () => {
@@ -275,7 +279,7 @@ describe('<App />', () => {
                 });
                 filters.forceUpdate();
                 filters.applyCompanyFilters();
-                expect(spy).toHaveBeenCalledWith([78, 52, 54, 56, 59, 61, 65]);
+                expect(spy).toHaveBeenCalledWith([35, 24, 25, 26, 28, 29, 30]);
             });
         })
 
@@ -293,7 +297,7 @@ describe('<App />', () => {
                 });
                 filters.forceUpdate();
                 filters.applyProductFilters();
-                expect(spy).toHaveBeenCalledWith([42]);
+                expect(spy).toHaveBeenCalledWith([20]);
             });
         })
     })

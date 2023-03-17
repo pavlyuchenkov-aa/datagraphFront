@@ -93,6 +93,7 @@ class App extends React.Component {
     }
 
     this.getLinkData(query, sourceNodeType);
+    console.log(query);
   }
 
   onZoomIn = () => {
