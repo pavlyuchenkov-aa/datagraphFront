@@ -2,9 +2,9 @@ name: Build CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ frontend-dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ frontend-dev ]
 
 jobs:
   build:
